@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, GitBranch, Layers, Network, Scatter, Shapes } from "lucide-react";
+import { ArrowRight, GitBranch, Layers, Network, ScatterChart, Shapes } from "lucide-react";
 import { PageLayout } from "@/components/PageLayout";
 
 const methods = [
-  { code: "ACP", name: "Analyse en Composantes Principales", to: "/data-mining/acp", icon: Scatter, status: "ready",
+  { code: "ACP", name: "Analyse en Composantes Principales", to: "/data-mining/acp", icon: ScatterChart, status: "ready",
     short: "Réduire la dimension d'un tableau quantitatif tout en préservant un maximum de variance.",
     use: "Données quantitatives, variables corrélées" },
   { code: "AFC", name: "Analyse Factorielle des Correspondances", to: "/data-mining/afc", icon: Network, status: "soon",

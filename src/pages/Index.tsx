@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, GitBranch, Layers, Network, Scatter, Shapes, Sparkles } from "lucide-react";
+import { ArrowRight, GitBranch, Layers, Network, ScatterChart, Shapes, Sparkles } from "lucide-react";
 import { PageLayout } from "@/components/PageLayout";
 
 const methods = [
-  { code: "ACP", name: "Analyse en Composantes Principales", to: "/data-mining/acp", icon: Scatter, status: "ready", desc: "Réduction de dimension et visualisation de données quantitatives." },
+  { code: "ACP", name: "Analyse en Composantes Principales", to: "/data-mining/acp", icon: ScatterChart, status: "ready", desc: "Réduction de dimension et visualisation de données quantitatives." },
   { code: "AFC", name: "Analyse Factorielle des Correspondances", to: "/data-mining/afc", icon: Network, status: "soon", desc: "Étudier les liens entre deux variables qualitatives." },
   { code: "AFCM", name: "Analyse Factorielle Multiple", to: "/data-mining/afcm", icon: Layers, status: "soon", desc: "Généralisation de l'AFC à plusieurs variables qualitatives." },
   { code: "CAH", name: "Classification Ascendante Hiérarchique", to: "/data-mining/cah", icon: GitBranch, status: "soon", desc: "Regroupement progressif des individus en dendrogramme." },
