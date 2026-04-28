@@ -8,7 +8,10 @@ import NotFound from "./pages/NotFound.tsx";
 import DataMining from "./pages/DataMining.tsx";
 import About from "./pages/About.tsx";
 import ACP from "./pages/methods/ACP.tsx";
-import MethodPlaceholder from "./pages/methods/MethodPlaceholder.tsx";
+import AFC from "./pages/methods/AFC.tsx";
+import ACM from "./pages/methods/ACM.tsx";
+import CAH from "./pages/methods/CAH.tsx";
+import KMeans from "./pages/methods/KMeans.tsx";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +25,11 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/data-mining" element={<DataMining />} />
           <Route path="/data-mining/acp" element={<ACP />} />
-          <Route path="/data-mining/:slug" element={<MethodPlaceholder />} />
+          <Route path="/data-mining/afc" element={<AFC />} />
+          <Route path="/data-mining/acm" element={<ACM />} />
+          <Route path="/data-mining/afcm" element={<ACM />} />
+          <Route path="/data-mining/cah" element={<CAH />} />
+          <Route path="/data-mining/kmeans" element={<KMeans />} />
           <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

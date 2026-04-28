@@ -2,72 +2,85 @@ import { Link } from "react-router-dom";
 import { ArrowRight, GitBranch, Layers, Network, ScatterChart, Shapes } from "lucide-react";
 import { PageLayout } from "@/components/PageLayout";
 
-const methods = [
-  { code: "ACP", name: "Analyse en Composantes Principales", to: "/data-mining/acp", icon: ScatterChart, status: "ready",
-    short: "Réduire la dimension d'un tableau quantitatif tout en préservant un maximum de variance.",
-    use: "Données quantitatives, variables corrélées" },
-  { code: "AFC", name: "Analyse Factorielle des Correspondances", to: "/data-mining/afc", icon: Network, status: "soon",
-    short: "Visualiser les associations entre les modalités de deux variables qualitatives.",
-    use: "Tableau de contingence, deux variables qualitatives" },
-  { code: "AFCM", name: "Analyse Factorielle Multiple", to: "/data-mining/afcm", icon: Layers, status: "soon",
-    short: "Étendre l'AFC à plus de deux variables qualitatives via le tableau disjonctif.",
-    use: "Plusieurs variables qualitatives" },
-  { code: "CAH", name: "Classification Ascendante Hiérarchique", to: "/data-mining/cah", icon: GitBranch, status: "soon",
-    short: "Construire un dendrogramme en agrégeant progressivement les individus les plus proches.",
-    use: "Petits/moyens jeux de données, structure hiérarchique" },
-  { code: "K-means", name: "Partitionnement K-means", to: "/data-mining/kmeans", icon: Shapes, status: "soon",
-    short: "Partitionner n individus en K groupes en minimisant la variance intra-cluster.",
-    use: "Grands volumes, K connu ou estimé" },
+const factorielles = [
+  { code: "ACP", name: "Analyse en Composantes Principales", to: "/data-mining/acp", icon: ScatterChart,
+    short: "Réduction de dimension d'un tableau quantitatif.",
+    formula: "\\mathrm{PC}_i = v_{i1} Z_1 + \\dots + v_{ip} Z_p" },
+  { code: "AFC", name: "Analyse Factorielle des Correspondances", to: "/data-mining/afc", icon: Network,
+    short: "Associations entre deux variables qualitatives.",
+    formula: "\\chi^2 = \\sum_{i,j} \\frac{(n_{ij}-t_{ij})^2}{t_{ij}}" },
+  { code: "ACM", name: "Analyse des Correspondances Multiples", to: "/data-mining/acm", icon: Layers,
+    short: "Généralisation de l'AFC à p variables qualitatives.",
+    formula: "\\mathbf{Z}_{n \\times m} \\to \\mathbf{B} = \\mathbf{Z}^\\top \\mathbf{Z}" },
 ];
+
+const classification = [
+  { code: "CAH", name: "Classification Ascendante Hiérarchique", to: "/data-mining/cah", icon: GitBranch,
+    short: "Construction d'un dendrogramme par fusions successives.",
+    formula: "\\Delta(A,B) = \\frac{|A||B|}{|A|+|B|} \\, d^2(g_A, g_B)" },
+  { code: "K-means", name: "Partitionnement K-means", to: "/data-mining/kmeans", icon: Shapes,
+    short: "Partition en K groupes minimisant l'inertie intra.",
+    formula: "\\min_{C_1,\\dots,C_K} \\sum_{k=1}^K \\sum_{x \\in C_k} \\|x - \\mu_k\\|^2" },
+];
+
+import { InlineMath } from "react-katex";
+
+const Card = ({ m }: { m: typeof factorielles[number] }) => {
+  const Icon = m.icon;
+  return (
+    <Link
+      to={m.to}
+      className="group block p-7 rounded-lg border border-border bg-card hover:border-accent/50 hover:shadow-card hover:-translate-y-1 transition-all"
+    >
+      <div className="flex items-start justify-between mb-5">
+        <div className="w-11 h-11 rounded-md bg-secondary text-primary flex items-center justify-center group-hover:bg-accent group-hover:text-accent-foreground transition">
+          <Icon className="w-5 h-5" />
+        </div>
+        <span className="font-mono text-[11px] tracking-widest text-accent">{m.code}</span>
+      </div>
+      <h3 className="font-serif text-xl font-semibold text-primary leading-snug mb-2">{m.name}</h3>
+      <p className="text-sm text-muted-foreground leading-relaxed mb-5">{m.short}</p>
+      <div className="px-3 py-2 rounded bg-surface/70 border border-border overflow-x-auto text-[13px]">
+        <InlineMath math={m.formula} />
+      </div>
+      <div className="mt-5 inline-flex items-center gap-1.5 text-sm text-accent font-medium">
+        Lire la fiche <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition" />
+      </div>
+    </Link>
+  );
+};
 
 const DataMining = () => (
   <PageLayout>
-    <section className="container pt-16 pb-12">
+    <section className="container pt-16 pb-10">
       <div className="text-xs uppercase tracking-[0.22em] text-accent font-medium mb-4">Chapitre I</div>
       <h1 className="font-serif text-5xl md:text-6xl font-semibold text-primary mb-6 max-w-3xl leading-[1.05]">
-        Data Mining — explorer, réduire, classifier.
+        Data Mining.
       </h1>
       <p className="text-lg text-foreground/75 max-w-2xl leading-relaxed">
-        Le data mining regroupe les méthodes statistiques permettant de tirer du sens d'un tableau de données.
-        On distingue généralement les méthodes <em>factorielles</em> (ACP, AFC, AFCM) qui réduisent la dimension,
-        et les méthodes de <em>classification</em> (CAH, K-means) qui regroupent les individus.
+        Cinq méthodes pour explorer, réduire et regrouper. Trois factorielles, deux de classification.
       </p>
     </section>
 
+    <section className="container pb-12">
+      <div className="flex items-baseline gap-4 mb-6">
+        <span className="font-serif text-3xl text-muted-foreground/60 italic">i</span>
+        <h2 className="font-serif text-2xl font-semibold text-primary">Méthodes factorielles</h2>
+        <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Réduction de dimension</span>
+      </div>
+      <div className="grid md:grid-cols-3 gap-5">
+        {factorielles.map((m) => <Card key={m.code} m={m} />)}
+      </div>
+    </section>
+
     <section className="container pb-24">
-      <div className="space-y-4">
-        {methods.map((m) => {
-          const Icon = m.icon;
-          const ready = m.status === "ready";
-          const inner = (
-            <article className={`grid md:grid-cols-[auto_1fr_auto] gap-6 items-center p-7 rounded-lg border border-border bg-card transition-all ${
-              ready ? "hover:border-accent/40 hover:shadow-card hover:-translate-y-0.5" : "opacity-70"
-            }`}>
-              <div className="w-14 h-14 rounded-md bg-secondary text-primary flex items-center justify-center group-hover:bg-accent group-hover:text-accent-foreground transition-colors">
-                <Icon className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="flex items-center gap-3 mb-1.5">
-                  <span className="font-mono text-xs text-accent">{m.code}</span>
-                  <span className={`text-[10px] uppercase tracking-[0.18em] px-2 py-0.5 rounded ${
-                    ready ? "bg-sage/15 text-sage" : "bg-muted text-muted-foreground"
-                  }`}>
-                    {ready ? "Disponible" : "À venir"}
-                  </span>
-                </div>
-                <h2 className="font-serif text-2xl font-semibold text-primary mb-1.5">{m.name}</h2>
-                <p className="text-foreground/75">{m.short}</p>
-                <p className="text-xs text-muted-foreground mt-2 italic">Cas d'usage typique : {m.use}</p>
-              </div>
-              {ready && <ArrowRight className="hidden md:block w-5 h-5 text-accent" />}
-            </article>
-          );
-          return ready ? (
-            <Link key={m.code} to={m.to} className="block group">{inner}</Link>
-          ) : (
-            <div key={m.code} className="group">{inner}</div>
-          );
-        })}
+      <div className="flex items-baseline gap-4 mb-6">
+        <span className="font-serif text-3xl text-muted-foreground/60 italic">ii</span>
+        <h2 className="font-serif text-2xl font-semibold text-primary">Méthodes de classification</h2>
+        <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground">Regroupement</span>
+      </div>
+      <div className="grid md:grid-cols-2 gap-5">
+        {classification.map((m) => <Card key={m.code} m={m} />)}
       </div>
     </section>
   </PageLayout>
