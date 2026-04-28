@@ -5,6 +5,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import DataMining from "./pages/DataMining.tsx";
+import About from "./pages/About.tsx";
+import ACP from "./pages/methods/ACP.tsx";
+import MethodPlaceholder from "./pages/methods/MethodPlaceholder.tsx";
 
 const queryClient = new QueryClient();
 
@@ -16,7 +20,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/data-mining" element={<DataMining />} />
+          <Route path="/data-mining/acp" element={<ACP />} />
+          <Route path="/data-mining/:slug" element={<MethodPlaceholder />} />
+          <Route path="/about" element={<About />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
