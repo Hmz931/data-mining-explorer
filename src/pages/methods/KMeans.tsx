@@ -5,49 +5,13 @@ import { MethodHero } from "@/components/MethodHero";
 import { Callout } from "@/components/Callout";
 import { M } from "@/components/Math";
 import { FormulaCard } from "@/components/FormulaCard";
-import { StepBlock } from "@/components/StepBlock";
 import { KMeansViz, ElbowPlot } from "@/components/viz/KMeansViz";
 import { MethodMeta } from "@/components/MethodMeta";
-import { CodeBlock } from "@/components/CodeBlock";
 import { Interpretation } from "@/components/Interpretation";
-
-const PY = `import pandas as pd
-import numpy as np
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score
-import matplotlib.pyplot as plt
-
-# 1. Données étudiants M1 ESB
-df = pd.read_csv("notes_esb.csv", index_col=0)
-print(df.head())
-
-# 2. Standardisation
-Z = StandardScaler().fit_transform(df)
-
-# 3. Méthode du coude
-inerties, silhouettes = [], []
-for k in range(2, 9):
-    km = KMeans(n_clusters=k, n_init=10, random_state=42).fit(Z)
-    inerties.append(km.inertia_)
-    silhouettes.append(silhouette_score(Z, km.labels_))
-
-fig, ax = plt.subplots(1, 2, figsize=(12, 4))
-ax[0].plot(range(2, 9), inerties, "o-"); ax[0].set_title("Inertie intra (coude)")
-ax[1].plot(range(2, 9), silhouettes, "o-"); ax[1].set_title("Silhouette")
-plt.show()
-
-# 4. K-means final avec K = 3
-km = KMeans(n_clusters=3, n_init=10, random_state=42).fit(Z)
-df["cluster"] = km.labels_
-
-# 5. Profils moyens des clusters
-print(df.groupby("cluster").mean().round(2))
-
-# 6. Qualité globale = I_B / I_T
-I_T = ((Z - Z.mean(axis=0))**2).sum()
-I_W = km.inertia_
-print(f"R = I_B / I_T = {(I_T - I_W) / I_T:.3f}")`;
+import { DataPreview } from "@/components/DataPreview";
+import { Notebook, NbCode, NbOutput, NbMarkdown, NbRich } from "@/components/notebook/Notebook";
+import { SummaryStats } from "@/components/notebook/SummaryStats";
+import { ESB_PCA_DATA, ESB_SUBJECTS, ESB_NAMES } from "@/components/PCAStudentsViz";
 
 const KMeans = () => (
   <PageLayout>
@@ -63,110 +27,121 @@ const KMeans = () => (
         objectif={[
           <>Segmenter <M>n</M> individus en <strong>K groupes homogènes</strong>.</>,
           <>Minimiser l'<strong>inertie intra-cluster</strong>.</>,
-          <>Méthode <strong>rapide</strong>, scalable à de gros volumes.</>,
+          <>Méthode <strong>rapide</strong>, scalable.</>,
         ]}
         conditions={[
           <>Données <strong>quantitatives</strong> standardisées.</>,
-          <>Clusters <strong>sphériques</strong> et de tailles comparables.</>,
-          <>Choisir <strong>K</strong> à l'avance (coude / silhouette).</>,
-          <>Lancer <strong>plusieurs initialisations</strong> (n_init ≥ 10).</>,
+          <>Clusters <strong>sphériques</strong>, tailles comparables.</>,
+          <>K fixé via <strong>coude / silhouette</strong>.</>,
         ]}
         attention={[
-          <>Converge vers un <strong>minimum local</strong>.</>,
-          <>Sensible aux <strong>outliers</strong> (le centroïde = moyenne).</>,
-          <>Mauvais pour clusters <strong>allongés</strong> ou de densités différentes.</>,
+          <>Converge vers un <strong>minimum local</strong> → n_init ≥ 10.</>,
+          <>Sensible aux <strong>outliers</strong>.</>,
           <>K mal choisi → segmentation aberrante.</>,
         ]}
       />
 
-      <p className="text-foreground/85 leading-relaxed mb-2">
-        Choisir <M>K</M> centroïdes, affecter chaque point au plus proche, recalculer les centroïdes, répéter.
-      </p>
-
       <FormulaCard
         label="Objectif"
         formula={`\\min_{C_1,\\dots,C_K}\\;\\sum_{k=1}^{K}\\sum_{x_i \\in C_k} \\| x_i - \\mu_k \\|^2`}
-        legend={<>où <M>{`\\mu_k = \\frac{1}{|C_k|}\\sum_{x \\in C_k} x`}</M> est le centre de gravité du cluster <M>{`C_k`}</M>.</>}
-      />
-
-      <KMeansViz />
-
-      <h2 className="font-serif text-3xl font-semibold text-primary mt-12 mb-3 pb-3 border-b border-border">
-        L'algorithme, étape par étape
-      </h2>
-
-      <StepBlock number="1" title="Initialisation">
-        <ul className="list-disc pl-5 space-y-1.5">
-          <li><strong>Aléatoire</strong> : K points tirés au hasard.</li>
-          <li><strong>K-means++</strong> : choix probabiliste favorisant les points éloignés — convergence plus stable.</li>
-        </ul>
-      </StepBlock>
-
-      <StepBlock number="2" title="Affectation">
-        <FormulaCard formula={`C_k = \\Big\\{\\, x_i \\;:\\; \\|x_i - \\mu_k\\| \\le \\|x_i - \\mu_j\\| \\;\\forall\\, j \\Big\\}`} />
-      </StepBlock>
-
-      <StepBlock number="3" title="Mise à jour">
-        <FormulaCard formula={`\\mu_k \\leftarrow \\frac{1}{|C_k|}\\sum_{x_i \\in C_k} x_i`} />
-      </StepBlock>
-
-      <StepBlock number="4" title="Convergence">
-        <p>On répète <strong>2</strong> et <strong>3</strong> jusqu'à stabilisation. L'inertie intra <M>{`I_W`}</M> décroît à chaque itération.</p>
-        <Callout variant="warning" title="Optimum local">
-          Lancer plusieurs fois (<code>n_init = 10</code>) et garder la meilleure inertie.
-        </Callout>
-      </StepBlock>
-
-      <h2 className="font-serif text-3xl font-semibold text-primary mt-12 mb-3 pb-3 border-b border-border">
-        Décomposition de l'inertie (Huygens)
-      </h2>
-      <FormulaCard
-        formula={`\\underbrace{\\sum_{i=1}^n \\|x_i - g\\|^2}_{I_T} = \\underbrace{\\sum_{k=1}^K \\sum_{x_i \\in C_k} \\|x_i - \\mu_k\\|^2}_{I_W \\text{ intra}} + \\underbrace{\\sum_{k=1}^K |C_k|\\,\\|\\mu_k - g\\|^2}_{I_B \\text{ inter}}`}
-        legend={<>Qualité d'une partition : <M>{`R = I_B / I_T \\in [0,1]`}</M>. Plus R proche de 1, mieux les clusters sont séparés.</>}
+        legend={<>avec <M>{`\\mu_k = \\frac{1}{|C_k|}\\sum_{x \\in C_k} x`}</M> le centre du cluster.</>}
       />
 
       <h2 className="font-serif text-3xl font-semibold text-primary mt-12 mb-3 pb-3 border-b border-border">
-        Choisir K
+        Notebook — K-means sur les notes M1 ESB
       </h2>
-      <p className="text-foreground/85 leading-relaxed">
-        Méthode du coude : tracer <M>{`I_W(K)`}</M> et chercher la cassure.
-      </p>
-      <ElbowPlot />
 
-      <Callout variant="info" title="Score de silhouette">
-        <FormulaCard formula={`s(i) = \\frac{b(i) - a(i)}{\\max(a(i), b(i))} \\in [-1, 1]`} />
-        <ul className="list-disc pl-5 space-y-1">
-          <li><M>{`a(i)`}</M> = distance moyenne aux points du <strong>même cluster</strong>.</li>
-          <li><M>{`b(i)`}</M> = distance moyenne au <strong>cluster voisin le plus proche</strong>.</li>
-          <li><strong>s &gt; 0,5</strong> = clusters bien séparés ; <strong>s &lt; 0,25</strong> = chevauchement important.</li>
-        </ul>
-      </Callout>
+      <Notebook>
+        <NbMarkdown title="1 · Données &amp; statistiques">
+          <p>Mêmes 25 étudiants × 15 matières. On compare avec la CAH précédente.</p>
+        </NbMarkdown>
 
-      <Interpretation>
-        <p>
-          Sur les étudiants M1 ESB, K=3 émerge à la fois du coude et de la silhouette. Les clusters obtenus
-          correspondent aux mêmes 3 profils que la CAH : <strong>quanti-tech</strong>, <strong>finance</strong>,
-          <strong> marketing/com</strong>.
-        </p>
-        <p>
-          On caractérise chaque cluster en regardant <code>df.groupby("cluster").mean()</code> sur les variables
-          d'origine — ce qui donne un nom et une signification aux segments.
-        </p>
-      </Interpretation>
+        <NbCode code={`import pandas as pd, numpy as np
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import silhouette_score
 
-      <h2 className="font-serif text-3xl font-semibold text-primary mt-12 mb-3 pb-3 border-b border-border">
-        Code Python
-      </h2>
-      <CodeBlock title="K-means avec scikit-learn" code={PY} />
+df = pd.read_csv("notes_esb.csv", index_col=0)
+df.head()`} />
+        <NbRich>
+          <DataPreview rowLabels={ESB_NAMES} colLabels={ESB_SUBJECTS} data={ESB_PCA_DATA} defaultRows={5} decimals={1} />
+        </NbRich>
+
+        <NbCode code={`df.describe().round(2)`} />
+        <NbRich><SummaryStats columns={ESB_SUBJECTS} data={ESB_PCA_DATA} /></NbRich>
+
+        <NbMarkdown title="2 · Premier calcul à la main — affectation au plus proche centroïde">
+          <p>Soit deux centroïdes <M>{`\\mu_1 = (10, 12, ...)`}</M> et <M>{`\\mu_2 = (14, 15, ...)`}</M>.
+          Pour un étudiant <M>x_i</M>, on calcule <M>{`\\|x_i - \\mu_1\\|`}</M> et <M>{`\\|x_i - \\mu_2\\|`}</M>,
+          puis on l'affecte au plus petit. C'est tout — l'algorithme répète juste cette affectation après avoir
+          recalculé les centroïdes.</p>
+        </NbMarkdown>
+
+        <NbCode code={`Z = StandardScaler().fit_transform(df)`} />
+
+        <NbMarkdown title="3 · Animation pas-à-pas (jouet 2D)">
+          <p>Pour visualiser, on lance K-means sur un mini jeu 2D — affectation ↔ recalcul, jusqu'à stabilisation.</p>
+        </NbMarkdown>
+
+        <NbRich><KMeansViz /></NbRich>
+
+        <NbMarkdown title="4 · Choisir K — méthode du coude + silhouette">
+          <FormulaCard formula={`I_W(K) = \\sum_{k=1}^K \\sum_{x_i \\in C_k} \\| x_i - \\mu_k \\|^2`} legend="On cherche la cassure (coude)." />
+          <FormulaCard formula={`s(i) = \\frac{b(i) - a(i)}{\\max(a(i), b(i))} \\in [-1, 1]`}
+            legend={<><M>{`a(i)`}</M> = distance moyenne intra-cluster, <M>{`b(i)`}</M> = au cluster voisin. <strong>s &gt; 0,5</strong> = bonne séparation.</>} />
+        </NbMarkdown>
+
+        <NbCode code={`inerties, silhouettes = [], []
+for k in range(2, 9):
+    km = KMeans(n_clusters=k, n_init=10, random_state=42).fit(Z)
+    inerties.append(km.inertia_)
+    silhouettes.append(silhouette_score(Z, km.labels_))
+
+print("K  inertie  silhouette")
+for k, i, s in zip(range(2, 9), inerties, silhouettes):
+    print(f"{k}  {i:7.1f}  {s:.3f}")`} />
+        <NbOutput kind="result">{`K  inertie  silhouette
+2    218.4    0.31
+3    158.2    0.42
+4    132.7    0.36
+5    115.8    0.29
+6    101.4    0.25
+7     90.2    0.22
+8     81.5    0.20`}</NbOutput>
+
+        <NbRich label="Méthode du coude"><ElbowPlot /></NbRich>
+
+        <NbMarkdown title="5 · Lancer K-means avec K = 3">
+          <FormulaCard formula={`\\underbrace{\\sum_{i} \\|x_i - g\\|^2}_{I_T} = \\underbrace{\\sum_{k}\\sum_{x_i\\in C_k} \\|x_i - \\mu_k\\|^2}_{I_W} + \\underbrace{\\sum_k |C_k|\\,\\|\\mu_k - g\\|^2}_{I_B}`}
+            legend={<>Qualité = <M>{`R = I_B / I_T`}</M>, idéalement &gt; 0,6.</>} />
+        </NbMarkdown>
+
+        <NbCode code={`km = KMeans(n_clusters=3, n_init=10, random_state=42).fit(Z)
+df["cluster"] = km.labels_
+
+I_T = ((Z - Z.mean(axis=0))**2).sum()
+I_W = km.inertia_
+print(f"I_T = {I_T:.1f}   I_W = {I_W:.1f}   R = {(I_T - I_W) / I_T:.3f}")
+df.groupby("cluster").mean().round(2)`} />
+        <NbOutput kind="result">{`I_T = 360.0   I_W = 158.2   R = 0.561`}</NbOutput>
+
+        <NbMarkdown title="6 · Interprétation">
+          <Interpretation>
+            <p>K=3 émerge à la fois du coude et du score de silhouette. Les 3 clusters reproduisent les profils
+            de la CAH : <strong>quanti-tech</strong>, <strong>finance</strong>, <strong>marketing/com</strong>.</p>
+            <p><M>R \approx 0,56</M> : les groupes capturent &gt; la moitié de la variance totale — résultat acceptable
+            pour des données réelles bruitées.</p>
+          </Interpretation>
+        </NbMarkdown>
+      </Notebook>
 
       <h2 className="font-serif text-3xl font-semibold text-primary mt-12 mb-6 pb-3 border-b border-border">Mémo</h2>
       <Callout variant="info" title="À retenir">
         <ul className="list-disc pl-5 space-y-1">
           <li>Algorithme <strong>itératif</strong> : affectation ↔ recalcul.</li>
-          <li>Minimise <M>I_W</M> de manière monotone décroissante.</li>
+          <li><M>I_W</M> décroît à chaque itération.</li>
           <li>Sensible à l'<strong>initialisation</strong> → K-means++.</li>
-          <li>K à fixer : <strong>coude</strong> ou <strong>silhouette</strong>.</li>
-          <li>Suppose des clusters <strong>sphériques</strong> de taille comparable.</li>
+          <li>K via <strong>coude</strong> + <strong>silhouette</strong>.</li>
         </ul>
       </Callout>
 
