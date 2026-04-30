@@ -86,7 +86,7 @@ const Index = () => (
       <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
         <div>
           <div className="text-xs uppercase tracking-[0.22em] text-accent font-medium mb-3">Le programme</div>
-          <h2 className="font-serif text-4xl md:text-5xl font-semibold text-primary">Six chapitres, un carnet.</h2>
+          <h2 className="font-serif text-4xl md:text-5xl font-semibold text-primary">Six chapitres, un site.</h2>
         </div>
         <span className="text-sm text-muted-foreground">1 / 6 matière disponible</span>
       </div>
