@@ -12,6 +12,7 @@ import { DataPreview } from "@/components/DataPreview";
 import { Notebook, NbCode, NbOutput, NbMarkdown, NbRich } from "@/components/notebook/Notebook";
 import { SummaryStats } from "@/components/notebook/SummaryStats";
 import { ESB_PCA_DATA, ESB_SUBJECTS, ESB_NAMES } from "@/components/PCAStudentsViz";
+import { QCM } from "@/components/QCM";
 
 // Hand-calc demo: distance between two students on first 4 numeric columns
 const a = ESB_PCA_DATA[0], b = ESB_PCA_DATA[1];
@@ -134,6 +135,97 @@ dtype: int64`}</NbOutput>
           <li>Complexité <M>{`O(n^3)`}</M>.</li>
         </ul>
       </Callout>
+      <Callout variant="warning" title="Erreurs fréquentes">
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Oublier de standardiser → variable à grande échelle qui domine la distance.</li>
+          <li>Couper trop bas → trop de mini-clusters non interprétables.</li>
+          <li>Utiliser le lien simple sur des données bruitées → effet de chaîne.</li>
+        </ul>
+      </Callout>
+
+      <QCM
+        title="Testez vos connaissances — CAH"
+        questions={[
+          {
+            id: 1,
+            question: "Qu'est-ce qu'un dendrogramme ?",
+            options: [
+              "Une matrice de distances",
+              "Un arbre représentant les fusions successives entre clusters",
+              "Un nuage de points en 2D",
+              "Un tableau de contingence",
+            ],
+            correct: 1,
+            explanation:
+              "Le dendrogramme retrace l'historique des fusions de la CAH ; la hauteur d'une fusion indique la distance entre les deux clusters joints.",
+          },
+          {
+            id: 2,
+            question: "Le lien de Ward minimise :",
+            options: [
+              "La distance maximale entre points",
+              "La perte d'inertie inter-cluster",
+              "Le nombre d'itérations",
+              "Le nombre de clusters",
+            ],
+            correct: 1,
+            explanation:
+              "Ward fusionne les deux clusters dont la fusion augmente le moins l'inertie intra (= diminue le moins l'inertie inter).",
+          },
+          {
+            id: 3,
+            question: "Différence principale entre lien simple et lien complet :",
+            options: [
+              "Single = distance min entre paires ; Complete = distance max",
+              "Single tend à former des clusters compacts",
+              "Complete est sensible à l'effet de chaîne",
+              "Aucune différence",
+            ],
+            correct: 0,
+            explanation:
+              "Single utilise la distance min (effet de chaîne possible). Complete utilise la distance max et donne des clusters plus compacts.",
+          },
+          {
+            id: 4,
+            question: "Comment choisir K à partir du dendrogramme ?",
+            options: [
+              "Au hasard",
+              "En coupant au plus grand saut vertical",
+              "Toujours K = 3",
+              "K = nombre de variables",
+            ],
+            correct: 1,
+            explanation:
+              "Le plus grand saut vertical correspond à une fusion coûteuse — on coupe juste en dessous pour obtenir des clusters bien séparés.",
+          },
+          {
+            id: 5,
+            question: "L'inertie intra-classe mesure :",
+            options: [
+              "La distance entre les centres de classes",
+              "La dispersion des individus à l'intérieur de chaque classe",
+              "Le nombre de classes",
+              "La distance maximale dans le dataset",
+            ],
+            correct: 1,
+            explanation:
+              "I_W = Σ_k Σ_{i∈C_k} ||x_i − μ_k||². Une bonne classification minimise I_W (clusters compacts).",
+          },
+          {
+            id: 6,
+            question: "Pourquoi standardiser avant la CAH ?",
+            options: [
+              "Pour accélérer l'algorithme",
+              "Pour éviter qu'une variable à grande unité domine la distance euclidienne",
+              "Pour rendre la matrice symétrique",
+              "Ce n'est jamais nécessaire",
+            ],
+            correct: 1,
+            explanation:
+              "La distance euclidienne est dominée par les variables à grande variance. Standardiser donne le même poids à chaque variable.",
+          },
+        ]}
+      />
 
       <div className="mt-16 pt-8 border-t border-border flex justify-between items-center">
         <Link to="/data-mining/acm" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent transition">
