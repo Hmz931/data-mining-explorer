@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ESB Analytics</title>
+    <script>
+      // GitHub Pages SPA redirect — preserves the path as a hash for HashRouter.
+      (function () {
+        var path = window.location.pathname;
+        var base = "/data-mining-explorer/";
+        var sub = path.indexOf(base) === 0 ? path.slice(base.length) : "";
+        var search = window.location.search || "";
+        var hash = window.location.hash ? window.location.hash.slice(1) : "/" + sub;
+        window.location.replace(base + "#" + hash + search);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
