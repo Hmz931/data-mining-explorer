@@ -173,6 +173,7 @@ res.pca$ind$contrib[1:5, 1:3] # contribution (%)
 dist(res.pca$ind$coord[1:5, 1:2])  # distances dans le plan 1-2`} />
 
         <NbMarkdown title="8 · Coordonnées, cos², contributions des variables">
+          <p>Les variables proches du bord du cercle sont bien représentées ; celles près du centre, mal.</p>
         </NbMarkdown>
 
         <NbCode language="r" code={`res.pca$var$coord[, 1:3]
