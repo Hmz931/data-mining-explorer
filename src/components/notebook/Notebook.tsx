@@ -38,12 +38,14 @@ export const Notebook = ({ children, kernel = "Python 3 · ESB Analytics" }: { c
 };
 
 /* ───────────── Markdown / prose cell ───────────── */
-export const NbMarkdown = ({ children, title }: { children: ReactNode; title?: string }) => (
+export const NbMarkdown = ({ children, title }: { children?: ReactNode; title?: string }) => (
   <div className="px-5 md:px-8 py-5 bg-card">
     {title && <h3 className="font-serif text-xl font-semibold text-primary mb-2">{title}</h3>}
-    <div className="text-foreground/85 leading-relaxed text-[15px] [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1 [&_ul]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-1 [&_strong]:text-primary [&_strong]:font-semibold">
-      {children}
-    </div>
+    {children && (
+      <div className="text-foreground/85 leading-relaxed text-[15px] [&_p]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-1 [&_ul]:mb-3 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:space-y-1 [&_strong]:text-primary [&_strong]:font-semibold">
+        {children}
+      </div>
+    )}
   </div>
 );
 
