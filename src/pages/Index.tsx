@@ -56,12 +56,12 @@ const Index = () => (
             <span>Master 1 · Business Analytics · ESB</span>
           </div>
           <h1 className="font-serif text-5xl md:text-7xl font-semibold leading-[1.02] tracking-tight text-primary mb-6">
-            Le carnet de révisions<br />
+            Notes & visualisations<br />
             <span className="italic text-accent">de la promotion</span>.
           </h1>
           <p className="text-xl text-foreground/75 leading-relaxed mb-10 max-w-2xl">
-            Toutes les matières du programme rassemblées en un seul endroit. Démonstrations rigoureuses,
-            visualisations interactives, formules détaillées — pensé pour réviser, partager, et comprendre vraiment.
+            Toutes les matières du programme M1 Business Analytics rassemblées en un seul endroit.
+            Démonstrations, formules détaillées, code R / Python, visualisations interactives et QCM.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
