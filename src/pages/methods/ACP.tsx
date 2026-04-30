@@ -6,12 +6,11 @@ import { Callout } from "@/components/Callout";
 import { M } from "@/components/Math";
 import { FormulaCard } from "@/components/FormulaCard";
 import { PCAInteractive } from "@/components/PCAInteractive";
-import { PCAStudentsViz, ESB_PCA_DATA, ESB_SUBJECTS, ESB_NAMES } from "@/components/PCAStudentsViz";
+import { PCAStudentsViz } from "@/components/PCAStudentsViz";
 import { MethodMeta } from "@/components/MethodMeta";
-import { DataPreview } from "@/components/DataPreview";
 import { Interpretation } from "@/components/Interpretation";
 import { Notebook, NbCode, NbOutput, NbMarkdown, NbRich } from "@/components/notebook/Notebook";
-import { SummaryStats } from "@/components/notebook/SummaryStats";
+import { QCM } from "@/components/QCM";
 
 const ACP = () => (
   <PageLayout>
@@ -38,188 +37,271 @@ const ACP = () => (
         attention={[
           <><strong>Standardiser obligatoirement</strong> si unités différentes.</>,
           <>Sensible aux <strong>valeurs aberrantes</strong>.</>,
-          <>Les axes sont <strong>linéaires</strong>.</>,
+          <>Les axes sont <strong>linéaires</strong> uniquement.</>,
         ]}
       />
 
       <PCAInteractive />
 
-      {/* ───────────────────────── NOTEBOOK ───────────────────────── */}
-      <h2 className="font-serif text-3xl font-semibold text-primary mt-14 mb-3 pb-3 border-b border-border">
-        Notebook — ACP sur les notes M1 ESB
+      <Callout variant="intuition" title="Intuition">
+        L'ACP fait <strong>tourner</strong> le repère pour aligner le 1ᵉʳ axe avec la direction
+        de plus grande variance. On ne perd rien — on choisit juste un meilleur point de vue.
+      </Callout>
+
+      {/* ───── FORMULES ESSENTIELLES ───── */}
+      <h2 className="font-serif text-3xl font-semibold text-primary mt-14 mb-6 pb-3 border-b border-border">
+        Formules essentielles
       </h2>
 
-      <Notebook>
-        <NbMarkdown title="1 · Charger les données">
-          <p>25 étudiants M1 ESB Business Analytics, notés sur 15 matières du semestre. Objectif : retrouver les <strong>familles
-          de matières</strong> (Maths, IT, Gestion, Communication) et identifier des profils étudiants.</p>
+      <FormulaCard
+        label="1 · Standardisation"
+        formula={`Z_{ij} = \\frac{X_{ij} - \\bar{X}_j}{\\sigma_j}`}
+        legend="Indispensable si les variables n'ont pas la même unité."
+      />
+      <FormulaCard
+        label="2 · Décomposition spectrale"
+        formula={`\\mathbf{R}\\,\\mathbf{v}_k = \\lambda_k\\,\\mathbf{v}_k`}
+        legend={<>R = matrice de corrélation. v_k = k-ème axe principal. λ_k = variance portée.</>}
+      />
+      <FormulaCard
+        label="3 · Coordonnées des individus"
+        formula={`F_{ik} = \\sum_{j=1}^{p} v_{kj}\\, Z_{ij}`}
+        legend="Projection de l'individu i sur l'axe k."
+      />
+      <FormulaCard
+        label="4 · Corrélation variable-axe (cercle)"
+        formula={`r(X_j, F_k) = v_{kj}\\,\\sqrt{\\lambda_k}`}
+        legend="Pour tracer le cercle des corrélations."
+      />
+      <FormulaCard
+        label="5 · Taux de restitution"
+        formula={`\\tau_k = \\frac{\\lambda_k}{\\sum_{\\ell} \\lambda_\\ell} \\times 100`}
+        legend="Pourcentage de variance expliquée par l'axe k."
+      />
+
+      {/* ───── NOTEBOOK R DECATHLON ───── */}
+      <h2 className="font-serif text-3xl font-semibold text-primary mt-14 mb-3 pb-3 border-b border-border">
+        Notebook — ACP sur Decathlon (TP)
+      </h2>
+
+      <Notebook kernel="R 4.3 · ESB Analytics">
+        <NbMarkdown title="1 · Charger le jeu de données">
+          <p>Données <code>decathlon</code> du package <strong>FactoMineR</strong> :
+          performances de 41 décathloniens sur 10 épreuves + variables supplémentaires
+          (Rang, Points, Compétition).</p>
         </NbMarkdown>
 
-        <NbCode code={`import pandas as pd
-import numpy as np
-from sklearn.preprocessing import StandardScaler
+        <NbCode language="r" code={`install.packages(c("FactoMineR", "factoextra", "corrgram", "plyr"))
+library(FactoMineR); library(factoextra)
+data(decathlon)
+str(decathlon); dim(decathlon)`} />
+        <NbOutput kind="result">{`'data.frame': 41 obs. of 13 variables:
+ $ 100m         : num  11 10.8 11 11 11.3 ...
+ $ Long.jump    : num  7.58 7.4 7.3 7.32 7.27 ...
+ $ Shot.put     : num  14.8 14.3 14.8 14.6 13.7 ...
+ $ ...
+ $ 1500m        : num  291 274 277 282 269 ...
+ $ Rank         : int  1 2 3 4 5 6 7 8 9 10 ...
+ $ Points       : int  8217 8122 8067 8036 8004 ...
+ $ Competition  : Factor w/ 2 levels "Decastar","OlympicG"`}</NbOutput>
 
-df = pd.read_csv("notes_esb.csv", index_col=0)
-df.shape`} />
-        <NbOutput kind="result">{`(25, 15)`}</NbOutput>
+        <NbMarkdown title="2 · Comparer Decastar vs OlympicG (plyr)">
+          <p>Avant l'ACP, on regarde si la <strong>compétition</strong> influence les résultats.</p>
+        </NbMarkdown>
 
-        <NbCode code={`df.head()`} />
-        <NbRich>
-          <DataPreview
-            rowLabels={ESB_NAMES}
-            colLabels={ESB_SUBJECTS}
-            data={ESB_PCA_DATA}
-            defaultRows={5}
-            decimals={1}
-          />
+        <NbCode language="r" code={`library(plyr)
+ddply(decathlon, .(Competition), function(d) round(colMeans(d[,1:10]), 2))`} />
+
+        <NbMarkdown title="3 · Standardisation + corrélogramme">
+          <p>On centre-réduit avec <code>scale()</code> puis on visualise les corrélations entre épreuves.</p>
+        </NbMarkdown>
+
+        <NbCode language="r" code={`library(corrgram)
+Z <- scale(decathlon[, 1:10])
+corrgram(Z, order = TRUE, lower.panel = panel.shade,
+         upper.panel = panel.pie, main = "Corrélogramme — épreuves")`} />
+
+        <NbMarkdown title="4 · Lancer l'ACP avec FactoMineR">
+          <p>On déclare <strong>Rang</strong> et <strong>Points</strong> en quanti supplémentaires
+          (calculées à partir des 10 épreuves → biaiseraient les axes), et <strong>Compétition</strong>
+          en quali supplémentaire.</p>
+        </NbMarkdown>
+
+        <NbCode language="r" code={`res.pca <- PCA(decathlon, ncp = 10,
+               quanti.sup = 11:12,   # Rank, Points
+               quali.sup  = 13)      # Competition
+res.pca$eig`} />
+        <NbOutput kind="result">{`        eigenvalue percentage cumulative %
+comp 1   3.272      32.72        32.72
+comp 2   1.737      17.37        50.09
+comp 3   1.405      14.05        64.14
+comp 4   1.057      10.57        74.71
+comp 5   0.685       6.85        81.56
+...`}</NbOutput>
+
+        <NbMarkdown title="5 · Plans factoriels">
+          <p>Plans (1,2) puis (2,3), et un biplot combiné individus + variables.</p>
+        </NbMarkdown>
+
+        <NbCode language="r" code={`plot.PCA(res.pca, axes = c(1, 2), choix = "ind", habillage = 13)
+plot.PCA(res.pca, axes = c(1, 2), choix = "var")
+plot.PCA(res.pca, axes = c(2, 3), choix = "var")
+fviz_pca_biplot(res.pca, repel = TRUE)`} />
+        <NbRich label="Sortie graphique (notes M1 ESB pour la démo interactive)">
+          <PCAStudentsViz />
         </NbRich>
 
-        <NbMarkdown title="2 · Statistiques descriptives">
-          <p>On regarde <code>df.describe()</code> : moyenne, écart-type, min/max, quartiles, médiane, mode.
-          Les ordres de grandeur sont comparables (toutes les notes sont sur /20) — la standardisation reste
-          néanmoins recommandée pour égaliser la <strong>variance</strong>.</p>
+        <NbMarkdown title="6 · Éboulis &amp; critère de Kaiser">
+          <p>Critère de Kaiser : on retient les axes avec <strong>λ &gt; 1</strong>.</p>
         </NbMarkdown>
 
-        <NbCode code={`df.describe().round(2)`} />
-        <NbRich><SummaryStats columns={ESB_SUBJECTS} data={ESB_PCA_DATA} /></NbRich>
+        <NbCode language="r" code={`fviz_eig(res.pca, addlabels = TRUE, ylim = c(0, 50)) +
+  geom_hline(yintercept = 100/10, linetype = "dashed", color = "red")
 
-        <NbMarkdown title="3 · Premier calcul à la main — standardiser une variable">
-          <p>Avant l'ACP, on centre-réduit chaque colonne :</p>
-          <FormulaCard formula={`Z_{ij} = \\frac{X_{ij} - \\bar{X}_j}{\\sigma_j}`} />
-          <p>Exemple sur la première matière (<strong>Maths</strong>) — moyenne ≈ 11, écart-type ≈ 3,2.
-          Pour Amel (note 13,4) : <M>{`Z = (13.4 - 11.0)/3.2 \\approx 0.75`}</M>.
-          Une fois ce calcul fait pour les 15 colonnes, on a la matrice <M>Z</M>.</p>
+barplot(res.pca$eig[, 1], names.arg = paste0("Dim", 1:nrow(res.pca$eig)),
+        main = "Valeurs propres", col = "steelblue")
+abline(h = 1, col = "red", lty = 2)`} />
+
+        <NbMarkdown title="7 · Coordonnées, cos², contributions des individus">
+          <FormulaCard formula={`\\cos^2(i, k) = \\frac{F_{ik}^2}{\\sum_\\ell F_{i\\ell}^2}`}
+            legend="Qualité de représentation de l'individu i sur l'axe k." />
         </NbMarkdown>
 
-        <NbCode code={`Z = StandardScaler().fit_transform(df)
-pd.DataFrame(Z, index=df.index, columns=df.columns).head().round(2)`} />
-        <NbOutput kind="result">{`           Maths  Proba   Stat  ...   Soft  Séminaire
-Amel        0.75   0.42   0.61  ...  -0.18      0.05
-Yann       -1.10  -0.94  -1.22  ...   0.55     -0.31
-Léa         0.18   0.30   0.04  ...  -0.40      0.18
-Karim      -0.55  -0.42  -0.71  ...   1.20      0.66
-Inès        1.32   1.18   1.05  ...   0.12     -0.25`}</NbOutput>
+        <NbCode language="r" code={`res.pca$ind$coord[1:5, 1:3]   # coordonnées
+res.pca$ind$cos2[1:5, 1:3]    # qualité
+res.pca$ind$contrib[1:5, 1:3] # contribution (%)
+dist(res.pca$ind$coord[1:5, 1:2])  # distances dans le plan 1-2`} />
 
-        <NbMarkdown title="4 · Matrice de corrélation R">
-          <p>Comme <M>Z</M> est centré-réduit, <M>{`R = Z^\\top Z / (n-1)`}</M> est une matrice de corrélation
-          (diagonale = 1, hors-diagonale ∈ [-1, 1]).</p>
-          <p>Premier calcul à la main : <M>{`r(\\text{Maths}, \\text{Stat}) = \\frac{1}{n-1} \\sum_i Z_{i,\\text{Maths}} Z_{i,\\text{Stat}} \\approx 0.82`}</M> →
-          ces deux matières mesurent la même dimension latente.</p>
+        <NbMarkdown title="8 · Coordonnées, cos², contributions des variables">
+          <p>Les variables proches du bord du cercle sont bien représentées ; celles près du centre, mal.</p>
         </NbMarkdown>
 
-        <NbCode code={`R = np.corrcoef(Z, rowvar=False)
-print(R.round(2))`} />
+        <NbCode language="r" code={`res.pca$var$coord[, 1:3]
+res.pca$var$cos2[, 1:3]
+res.pca$var$contrib[, 1:3]
+fviz_pca_var(res.pca, col.var = "cos2", repel = TRUE)`} />
 
-        <NbMarkdown title="5 · Tests préalables — KMO &amp; Bartlett">
-          <p>Avant de lancer l'ACP, on vérifie que les corrélations sont suffisantes pour qu'une réduction de dimension
-          ait du sens.</p>
-          <FormulaCard
-            label="KMO"
-            formula={`\\mathrm{KMO} = \\frac{\\sum_{i\\neq j} r_{ij}^2}{\\sum_{i\\neq j} r_{ij}^2 + \\sum_{i\\neq j} a_{ij}^2}`}
-            legend={<><strong>&gt; 0,9</strong> excellent · <strong>0,8-0,9</strong> très bien · <strong>&lt; 0,5</strong> ACP déconseillée.</>}
-          />
-          <FormulaCard
-            label="Bartlett"
-            formula={`\\chi^2 = -\\left(n - 1 - \\frac{2p + 5}{6}\\right) \\ln |\\mathbf{R}|, \\quad \\mathrm{ddl} = \\frac{p(p-1)}{2}`}
-            legend={<>H₀ : <em>R = I</em> (variables indépendantes). p-value &lt; 0,05 → ACP légitime.</>}
-          />
-        </NbMarkdown>
-
-        <NbCode code={`from factor_analyzer.factor_analyzer import calculate_kmo, calculate_bartlett_sphericity
-chi2, p = calculate_bartlett_sphericity(df)
-kmo_per_var, kmo_total = calculate_kmo(df)
-print(f"Bartlett  chi2 = {chi2:.1f}  p = {p:.2e}")
-print(f"KMO total = {kmo_total:.3f}")`} />
-        <NbOutput kind="result">{`Bartlett  chi2 = 218.4  p = 1.7e-22
-KMO total = 0.741`}</NbOutput>
-
-        <NbMarkdown>
-          <p>✅ Bartlett rejette H₀ (p ≪ 0,05) et KMO = 0,74 (correct). On peut lancer l'ACP.</p>
-        </NbMarkdown>
-
-        <NbMarkdown title="6 · Décomposition spectrale">
-          <FormulaCard formula={`\\mathbf{R}\\,\\mathbf{v}_k = \\lambda_k\\,\\mathbf{v}_k`} legend="vecteurs propres = nouveaux axes ; valeurs propres = variance portée." />
-        </NbMarkdown>
-
-        <NbCode code={`from sklearn.decomposition import PCA
-acp = PCA(n_components=df.shape[1]).fit(Z)
-eig = acp.explained_variance_
-var_ratio = acp.explained_variance_ratio_
-
-print("Valeurs propres :", eig.round(3))
-print("Variance %      :", (var_ratio*100).round(1))
-print("Cumulé %        :", (var_ratio.cumsum()*100).round(1))`} />
-        <NbOutput kind="result">{`Valeurs propres : [5.41 2.71 1.69 1.16 0.81 0.62 ...]
-Variance %      : [36.1 18.1 11.3  7.7  5.4  4.1  ...]
-Cumulé %        : [36.1 54.2 65.5 73.2 78.6 82.7 ...]`}</NbOutput>
-
-        <NbMarkdown title="7 · Critère de Kaiser — λ &gt; 1">
-          <p>On garde les axes dont la valeur propre dépasse 1 (un axe doit porter plus que la variance d'une variable
-          standardisée). Ici : <strong>4 axes</strong> retenus, qui correspondent aux 4 familles de matières.</p>
-        </NbMarkdown>
-
-        <NbCode code={`(eig > 1).sum(), var_ratio[:4].sum()`} />
-        <NbOutput kind="result">{`(4, 0.732)`}</NbOutput>
-
-        <NbMarkdown title="8 · Visualisation : éboulis, cercle, plan des individus">
-          <p>Trois graphiques produits ensemble :</p>
-          <ul>
-            <li><strong>Scree plot</strong> : la cassure (« coude ») confirme le nombre d'axes utiles.</li>
-            <li><strong>Cercle des corrélations</strong> : <M>{`\\mathrm{cor}(X_j, F_k) = v_{kj}\\sqrt{\\lambda_k}`}</M>.</li>
-            <li><strong>Plan des individus</strong> : <M>{`F_{ik} = \\sum_j v_{kj}\\,Z_{ij}`}</M>.</li>
-          </ul>
-        </NbMarkdown>
-
-        <NbCode code={`F = acp.transform(Z)
-loadings = acp.components_.T * np.sqrt(eig)   # corrélations variables-axes
-import matplotlib.pyplot as plt
-fig, ax = plt.subplots(1, 3, figsize=(16, 5))
-ax[0].bar(range(1, len(eig)+1), eig); ax[0].axhline(1, ls="--"); ax[0].set_title("Scree")
-# ...cercle + plan...
-plt.show()`} />
-
-        <NbRich label="Sortie graphique"><PCAStudentsViz /></NbRich>
-
-        <NbMarkdown title="9 · Lecture du cercle des corrélations">
-          <p>Chaque variable <M>X_j</M> devient un point de coordonnées
-          <span className="ml-1"><M>{`\\big(\\mathrm{cor}(X_j, F_1),\\, \\mathrm{cor}(X_j, F_2)\\big)`}</M></span>.
-          La <strong>longueur</strong> = qualité de représentation (cos²).</p>
-          <ul>
-            <li><strong>Angle aigu</strong> entre 2 flèches : variables corrélées positivement.</li>
-            <li><strong>Angle droit</strong> : indépendantes (sur ce plan).</li>
-            <li><strong>Angle plat</strong> : anti-corrélées.</li>
-            <li>Variable <strong>au centre</strong> : mal représentée → chercher d'autres axes.</li>
-          </ul>
-        </NbMarkdown>
-
-        <NbCode code={`# Profils moyens des "familles" pour vérifier l'interprétation
-families = {"math": ["Maths","Proba","Stat","RO"],
-            "it":   ["Programmation","BDD","SI","PL/SQL"],
-            "mgmt": ["Gestion","Finance","Marketing","Projets"],
-            "comm": ["Anglais","Soft skills","Séminaire"]}
-for name, cols in families.items():
-    print(f"{name:5s} mean={df[cols].mean().mean():.2f}  std={df[cols].mean().std():.2f}")`} />
-
-        <NbMarkdown title="10 · Interprétation">
+        <NbMarkdown title="9 · Interprétation">
           <Interpretation>
-            <p><strong>F1 (~36%)</strong> oppose les profils <em>scientifico-techniques</em> (Maths/Stat/IT) aux profils
-            <em>littéraire-gestion</em>. <strong>F2 (~18%)</strong> isole l'axe <em>communication</em>.</p>
-            <p>Les flèches <strong>Maths-Proba-Stat-RO</strong> sont presque colinéaires → une seule dimension latente.
-            Idem pour <strong>BDD-SI-Programmation-PL/SQL</strong>.</p>
-            <p>Critère de Kaiser : <strong>4 axes</strong> retenus (cumul ≈ 73 %).</p>
+            <p><strong>Dim 1 (~33%)</strong> oppose les épreuves de <em>vitesse / saut</em>
+            (100m, 110m haies, longueur — corrélées négativement car un meilleur temps = un nombre plus petit)
+            aux <em>lancers</em> (poids, disque, javelot).</p>
+            <p><strong>Dim 2 (~17%)</strong> isole l'axe <em>vertical</em> (saut en hauteur, perche, 1500m).</p>
+            <p>Les variables supplémentaires <strong>Points</strong> (←) et <strong>Rang</strong> (→) sont quasi
+            opposées sur Dim 1, ce qui est cohérent (plus de points = meilleur rang = numéro plus petit).</p>
           </Interpretation>
+          <p className="mt-3 text-sm text-muted-foreground">
+            <em>Adaptation au TP classe :</em>
+          </p>
         </NbMarkdown>
+
+        <NbCode language="r" code={`# Variante TP — notes ESB
+# BaseNotes <- read.csv("BaseNotes.csv", row.names = 1)
+# res.pca <- PCA(BaseNotes, ncp = 5,
+#                quanti.sup = c("Rang"),
+#                quali.sup  = c("Ecole"))
+# fviz_pca_biplot(res.pca, habillage = "Ecole", repel = TRUE)`} />
       </Notebook>
 
+      {/* ───── MÉMO ───── */}
       <h2 className="font-serif text-3xl font-semibold text-primary mt-14 mb-6 pb-3 border-b border-border">Mémo</h2>
       <Callout variant="info" title="À retenir">
         <ul className="list-disc pl-5 space-y-1">
           <li>ACP = <strong>rotation</strong> du repère, sans perte d'information.</li>
-          <li>Standardiser <strong>presque toujours</strong>.</li>
-          <li>Critère de <strong>Kaiser : λ &gt; 1</strong> · ou cumul ≥ 80 %.</li>
-          <li>Plan des individus + cercle des corrélations = duo d'interprétation.</li>
+          <li>Standardiser <strong>presque toujours</strong> (sauf unités identiques + variances comparables).</li>
+          <li>Critère de <strong>Kaiser : λ &gt; 1</strong> ; ou cumul ≥ 80 %.</li>
+          <li>Plan des individus <strong>+</strong> cercle des corrélations = duo d'interprétation.</li>
+          <li>Variables dérivées (Rang, Points…) → en <strong>supplémentaires</strong>.</li>
         </ul>
       </Callout>
+      <Callout variant="warning" title="Erreurs fréquentes">
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Oublier de <strong>standardiser</strong> → un axe dominé par la variable à grande unité.</li>
+          <li>Interpréter une variable <strong>près du centre</strong> du cercle (mal représentée).</li>
+          <li>Garder trop d'axes (les derniers ne sont que du <strong>bruit</strong>).</li>
+          <li>Mettre en actif des variables <strong>redondantes</strong> (Rang, Points dans Decathlon).</li>
+        </ul>
+      </Callout>
+
+      {/* ───── QCM ───── */}
+      <QCM
+        title="Testez vos connaissances — ACP"
+        questions={[
+          {
+            id: 1,
+            question: "Que représente la valeur propre λₖ ?",
+            options: [
+              "Le nombre d'individus mal classés",
+              "La variance portée par cette composante",
+              "Le coefficient de corrélation moyen",
+              "L'inverse de l'erreur de projection",
+            ],
+            correct: 1,
+            explanation:
+              "λₖ mesure exactement la variance de la k-ième composante principale dans le repère original.",
+          },
+          {
+            id: 2,
+            question: "Critère de Kaiser : on retient les composantes avec λ ?",
+            options: ["> 0,5", "> 1", "> moyenne des λ", "> n/p"],
+            correct: 1,
+            explanation:
+              "λ > 1 signifie que la composante porte plus que la variance d'une variable standardisée — sinon elle n'apporte rien.",
+          },
+          {
+            id: 3,
+            question: "Pourquoi standardiser les données avant l'ACP ?",
+            options: [
+              "Pour réduire le temps de calcul",
+              "Pour que chaque variable ait une variance de 1",
+              "Pour rendre les valeurs entières",
+              "Pour supprimer les corrélations",
+            ],
+            correct: 1,
+            explanation:
+              "Sans standardisation, une variable à grande unité (ex. salaire en €) écrase toutes les autres et domine le 1ᵉʳ axe.",
+          },
+          {
+            id: 4,
+            question: "Sur le cercle des corrélations, deux flèches à angle droit signifient :",
+            options: [
+              "Variables fortement corrélées positivement",
+              "Variables anti-corrélées",
+              "Variables non corrélées sur ce plan",
+              "Variables identiques",
+            ],
+            correct: 2,
+            explanation:
+              "L'angle θ entre deux flèches vérifie cos(θ) ≈ r. Donc 90° ⇒ r ≈ 0 ⇒ pas de corrélation linéaire dans ce plan.",
+          },
+          {
+            id: 5,
+            question: "Pourquoi Rang et Points sont déclarés supplémentaires dans Decathlon ?",
+            options: [
+              "Ce sont des variables qualitatives",
+              "Elles sont calculées à partir des 10 épreuves et biaiseraient les axes",
+              "Elles ont trop de valeurs manquantes",
+              "Elles sont mesurées dans une unité différente",
+            ],
+            correct: 1,
+            explanation:
+              "Rang et Points sont des résumés des 10 épreuves actives. En actives, elles créeraient une redondance qui gonflerait artificiellement le 1ᵉʳ axe.",
+          },
+          {
+            id: 6,
+            question: "Le cos² d'un individu sur un axe mesure :",
+            options: [
+              "Sa distance au centre",
+              "Sa contribution à l'inertie de l'axe",
+              "La qualité de sa représentation sur cet axe",
+              "Sa probabilité d'appartenir à un cluster",
+            ],
+            correct: 2,
+            explanation:
+              "cos² ∈ [0,1]. Proche de 1 → l'individu est très bien représenté sur l'axe. Faible → chercher d'autres axes pour l'interpréter.",
+          },
+        ]}
+      />
 
       <div className="mt-16 pt-8 border-t border-border flex justify-between items-center">
         <Link to="/data-mining" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent transition">

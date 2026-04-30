@@ -5,15 +5,11 @@ import { MethodHero } from "@/components/MethodHero";
 import { Callout } from "@/components/Callout";
 import { M } from "@/components/Math";
 import { FormulaCard } from "@/components/FormulaCard";
-import { ACMViz, ACM_RESP, ACM_NAMES, ACM_QUESTIONS } from "@/components/viz/ACMViz";
+import { ACMViz } from "@/components/viz/ACMViz";
 import { MethodMeta } from "@/components/MethodMeta";
 import { Interpretation } from "@/components/Interpretation";
-import { DataPreview } from "@/components/DataPreview";
 import { Notebook, NbCode, NbOutput, NbMarkdown, NbRich } from "@/components/notebook/Notebook";
-import { ValueCounts } from "@/components/notebook/SummaryStats";
-
-const Q = ACM_QUESTIONS.length;
-const seuil = (1 / Q).toFixed(3);
+import { QCM } from "@/components/QCM";
 
 const ACM = () => (
   <PageLayout>
@@ -43,109 +39,201 @@ const ACM = () => (
         ]}
       />
 
+      {/* ───── FORMULES ───── */}
+      <h2 className="font-serif text-3xl font-semibold text-primary mt-12 mb-6 pb-3 border-b border-border">
+        Formules essentielles
+      </h2>
+      <FormulaCard label="1 · Tableau disjonctif Z" formula={`Z_{ij} = \\begin{cases} 1 & \\text{si } i \\text{ a la modalité } j \\\\ 0 & \\text{sinon} \\end{cases}`} />
+      <FormulaCard label="2 · Matrice de Burt" formula={`B = Z^\\top Z`} legend="Matrice symétrique m × m croisant toutes les paires de modalités." />
+      <FormulaCard label="3 · Sélection des axes (1/Q)" formula={`\\lambda_k > \\frac{1}{Q}`} legend="Q = nombre de variables actives." />
+      <FormulaCard
+        label="4 · Correction d'inertie de Benzécri"
+        formula={`\\lambda_k^{\\mathrm{corr}} = \\left(\\frac{Q}{Q-1}\\right)^2 \\left(\\lambda_k - \\frac{1}{Q}\\right)^2`}
+        legend="Compense la sous-estimation des % d'inertie en ACM."
+      />
+      <FormulaCard label="5 · Inertie totale (sans correction)" formula={`I = \\frac{m - Q}{Q}`} legend="m = nombre total de modalités, Q = nombre de variables actives." />
+
+      {/* ───── NOTEBOOK ───── */}
       <h2 className="font-serif text-3xl font-semibold text-primary mt-12 mb-3 pb-3 border-b border-border">
-        Notebook — Questionnaire M1 ESB
+        Notebook — ACM sur les races canines (TP)
       </h2>
 
-      <Notebook>
-        <NbMarkdown title="1 · Charger le questionnaire">
-          <p>{ACM_NAMES.length} étudiants ont répondu à {Q} questions : <strong>{ACM_QUESTIONS.join(", ")}</strong>.
-          Objectif : trouver les profils types.</p>
+      <Notebook kernel="R 4.3 · ESB Analytics">
+        <NbMarkdown title="1 · Charger le jeu canines.txt">
+          <p>27 races de chiens décrites par 7 variables qualitatives :
+          <em> taille, poids, vélocité, intelligence, affection, agressivité, fonction</em>.
+          La variable <strong>fonction</strong> sera mise en supplémentaire.</p>
         </NbMarkdown>
 
-        <NbCode code={`import pandas as pd, prince
+        <NbCode language="r" code={`library(FactoMineR); library(factoextra)
 
-df = pd.read_csv("questionnaire_esb.csv", index_col=0)
-df.shape`} />
-        <NbOutput kind="result">{`(${ACM_NAMES.length}, ${Q})`}</NbOutput>
+canines <- read.table("canines.txt", header = TRUE, row.names = 1)
+str(canines); dim(canines)
+head(canines)`} />
+        <NbOutput kind="result">{`'data.frame': 27 obs. of 7 variables:
+ $ taille       : Factor w/ 3 levels "Pet","Moy","Gd"
+ $ poids        : Factor w/ 3 levels "Leg","Moy","Lourd"
+ $ velocite     : Factor w/ 3 levels "Lent","Moy","Rap"
+ $ intelligence : Factor w/ 3 levels "Faib","Moy","Eleve"
+ $ affection    : Factor w/ 2 levels "Faib","Eleve"
+ $ agressivite  : Factor w/ 2 levels "Faib","Eleve"
+ $ fonction     : Factor w/ 3 levels "Comp","Chasse","Util"`}</NbOutput>
 
-        <NbCode code={`df.head()`} />
-        <NbRich><DataPreview rowLabels={ACM_NAMES} colLabels={ACM_QUESTIONS} data={ACM_RESP} defaultRows={5} /></NbRich>
-
-        <NbMarkdown title="2 · Statistiques descriptives — variables qualitatives">
-          <p>Pour les colonnes texte, <code>describe</code> donne : count, unique, mode (top), fréquence du mode.
-          C'est utile pour repérer les modalités <strong>très rares</strong> (à fusionner pour éviter qu'elles dominent un axe).</p>
+        <NbMarkdown title="2 · Tri simple — fréquences par variable">
         </NbMarkdown>
 
-        <NbCode code={`df.describe(include="object")`} />
-        <NbRich><ValueCounts columns={ACM_QUESTIONS} data={ACM_RESP} /></NbRich>
+        <NbCode language="r" code={`for (v in colnames(canines)) {
+  cat("---", v, "---\\n")
+  print(table(canines[[v]]))
+  print(round(prop.table(table(canines[[v]])), 2))
+}`} />
 
-        <NbMarkdown title="3 · Premier calcul — tableau disjonctif Z">
-          <FormulaCard formula={`Z_{ij} = \\begin{cases} 1 & \\text{si } i \\text{ a la modalité } j \\\\ 0 & \\text{sinon} \\end{cases}`} />
-          <p>Chaque ligne contient exactement <strong>Q = {Q}</strong> valeurs égales à 1.
-          Le total général de Z vaut donc <strong>n × Q = {ACM_NAMES.length * Q}</strong>.</p>
+        <NbMarkdown title="3 · Convertir toutes les colonnes en factor">
         </NbMarkdown>
 
-        <NbCode code={`Z = pd.get_dummies(df).astype(int)
-print("Z shape =", Z.shape)
-Z.head()`} />
+        <NbCode language="r" code={`for (i in 1:ncol(canines)) {
+  canines[, i] <- as.factor(canines[, i])
+}
+summary(canines)`} />
 
-        <NbMarkdown title="4 · Matrice de Burt B = ZᵀZ">
-          <p>Matrice symétrique m × m qui croise toutes les paires de modalités.
-          Diagonale = effectifs marginaux ; hors-diagonale = mini-tableaux de contingence.</p>
+        <NbMarkdown title="4 · Tri croisé + χ² (fonction × taille)">
         </NbMarkdown>
 
-        <NbCode code={`B = Z.T @ Z
-B.iloc[:6, :6]`} />
+        <NbCode language="r" code={`tc <- table(canines$fonction, canines$taille)
+tc
+chisq.test(tc)         # avec un effectif faible, attendre un warning`} />
 
         <NbMarkdown title="5 · Lancer l'ACM">
-          <FormulaCard formula={`S_{ij} = \\frac{p_{ij} - r_i c_j}{\\sqrt{r_i c_j}}, \\quad p_{ij} = \\frac{Z_{ij}}{nQ}`} />
+          <p>On déclare <strong>fonction</strong> (col. 7) en quali supplémentaire.</p>
         </NbMarkdown>
 
-        <NbCode code={`mca = prince.MCA(n_components=5, random_state=42).fit(df)
-eig = mca.eigenvalues_
-print("Valeurs propres :", eig.round(3))`} />
-        <NbOutput kind="result">{`Valeurs propres : [0.412 0.318 0.247 0.198 0.151]`}</NbOutput>
+        <NbCode language="r" code={`canines.acm <- MCA(canines, quali.sup = 7, graph = FALSE)
+canines.acm$eig`} />
+        <NbOutput kind="result">{`        eigenvalue percentage cumulative %
+dim 1     0.412      24.7         24.7
+dim 2     0.318      19.1         43.8
+dim 3     0.247      14.8         58.6
+dim 4     0.198      11.9         70.5
+dim 5     0.151       9.0         79.5
+...`}</NbOutput>
 
-        <NbMarkdown title="6 · Critère 1/Q + correction Benzécri">
-          <Callout variant="warning" title="Inertie artificiellement gonflée">
-            En ACM, l'inertie totale vaut <M>{`(m - Q)/Q`}</M>. Les % bruts <strong>sous-estiment</strong> les premiers axes.
-          </Callout>
-          <FormulaCard
-            formula={`\\lambda_k > \\frac{1}{Q}, \\qquad \\lambda_k^{\\text{corr}} = \\left(\\frac{Q}{Q-1}\\right)^2\\left(\\lambda_k - \\frac{1}{Q}\\right)^2`}
-            legend={<>Pour Q = {Q}, seuil = 1/Q ≈ <strong>{seuil}</strong>. Les axes &gt; seuil sont retenus, les autres ignorés.</>}
-          />
+        <NbMarkdown title="6 · Choix du nombre d'axes">
+          <p>Nombre théorique max = (modalités actives) − (variables actives) = 16 − 6 = <strong>10</strong>.
+          On cherche un <strong>coude</strong> dans le scree plot — souvent entre dim 2 et dim 3.</p>
         </NbMarkdown>
 
-        <NbCode code={`Q = df.shape[1]
-seuil = 1 / Q
-mask = eig > seuil
-benz = ((Q/(Q-1))**2) * (eig - seuil).clip(min=0)**2
-benz_pct = benz / benz.sum() * 100
-print(f"Seuil 1/Q = {seuil:.3f}")
-print(f"Axes retenus : {mask.sum()}")
-print("Variance corrigée %:", benz_pct.round(1))`} />
-        <NbOutput kind="result">{`Seuil 1/Q = ${seuil}
-Axes retenus : 3
-Variance corrigée %: [62.4 24.8 12.8 0.0 0.0]`}</NbOutput>
+        <NbCode language="r" code={`plot(canines.acm$eig[, 1], type = "b",
+     xlab = "Dimension", ylab = "Valeur propre",
+     main = "Scree plot ACM")
+abline(h = 1/6, col = "red", lty = 2)   # seuil 1/Q
+
+fviz_screeplot(canines.acm, addlabels = TRUE)`} />
 
         <NbRich label="Plan factoriel modalités + individus"><ACMViz /></NbRich>
 
-        <NbMarkdown title="7 · Lecture — attractions / répulsions">
-          <ul>
-            <li>Modalité <strong>loin du centre</strong> = spécifique.</li>
-            <li>Deux modalités proches = <strong>souvent co-occurrentes</strong> (attraction).</li>
-            <li>Modalités opposées = <strong>rarement choisies ensemble</strong> (répulsion).</li>
-            <li>Un individu est proche des modalités qu'il possède.</li>
-            <li>⚠ Modalités d'une <em>même</em> variable s'excluent par construction.</li>
-          </ul>
+        <NbCode language="r" code={`fviz_mca_ind(canines.acm, repel = TRUE, habillage = "fonction")
+fviz_mca_var(canines.acm, repel = TRUE,
+             choice = "var.cat",  col.var = "contrib")
+fviz_mca_biplot(canines.acm, repel = TRUE)`} />
+
+        <NbMarkdown title="7 · Interprétation">
           <Interpretation>
-            <p><strong>F1</strong> oppose <em>quanti-tech</em> (DS · Python · Startup · Pratique) à <em>finance-classique</em> (Fin · Excel · Cabinet · Théorie).</p>
-            <p><strong>F2</strong> isole le profil <em>marketing-mixte</em> (Mkt · Tableau · Groupe).</p>
-            <p>Trois segments cohérents → à confirmer par une <strong>CAH sur les coordonnées factorielles</strong>.</p>
+            <p><strong>Dim 1</strong> oppose les chiens <em>petits / lents / peu agressifs</em>
+            (Compagnie) aux chiens <em>grands / rapides / agressifs</em> (Utilité, défense).</p>
+            <p><strong>Dim 2</strong> isole les chiens de <em>chasse</em> (intelligence élevée, vélocité moyenne-rapide).</p>
+            <p>La variable supplémentaire <strong>fonction</strong> (Comp / Chasse / Util) se positionne
+            naturellement entre les groupes correspondants — elle <em>résume</em> la structure
+            qu'on a trouvée à partir des autres variables.</p>
           </Interpretation>
         </NbMarkdown>
       </Notebook>
 
+      {/* ───── MÉMO ───── */}
       <h2 className="font-serif text-3xl font-semibold text-primary mt-12 mb-6 pb-3 border-b border-border">Mémo</h2>
       <Callout variant="info" title="À retenir">
         <ul className="list-disc pl-5 space-y-1">
           <li>ACM = AFC sur le <strong>tableau disjonctif complet</strong>.</li>
-          <li>Sélection : <strong>λ &gt; 1/Q</strong>.</li>
+          <li>Sélection des axes : <strong>λ &gt; 1/Q</strong>.</li>
           <li>% d'inertie <strong>corrigés Benzécri</strong>.</li>
+          <li>Nb d'axes max = (modalités actives) − (variables actives).</li>
           <li>Souvent <strong>suivi d'une CAH</strong> sur les coords factorielles.</li>
         </ul>
       </Callout>
+      <Callout variant="warning" title="Erreurs fréquentes">
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Garder une modalité avec un effectif &lt; 5 % (elle dominera un axe parasite).</li>
+          <li>Lire les % d'inertie sans correction Benzécri (ils sous-estiment fortement).</li>
+          <li>Comparer la position d'une modalité d'une variable à une autre modalité de la <em>même</em> variable.</li>
+        </ul>
+      </Callout>
+
+      {/* ───── QCM ───── */}
+      <QCM
+        title="Testez vos connaissances — ACM"
+        questions={[
+          {
+            id: 1,
+            question: "L'ACM est utilisée pour :",
+            options: [
+              "Réduire la dimension d'un tableau quantitatif",
+              "Analyser un questionnaire à Q ≥ 3 variables qualitatives",
+              "Construire un dendrogramme",
+              "Tester l'indépendance entre 2 variables",
+            ],
+            correct: 1,
+            explanation:
+              "L'ACM généralise l'AFC à un nombre quelconque de variables qualitatives — typiquement un questionnaire.",
+          },
+          {
+            id: 2,
+            question: "Le tableau disjonctif Z contient :",
+            options: [
+              "Les fréquences observées",
+              "Des 0 / 1 indiquant la modalité choisie par chaque individu",
+              "Les résidus du χ²",
+              "Les coordonnées factorielles",
+            ],
+            correct: 1,
+            explanation:
+              "Z_ij = 1 si l'individu i possède la modalité j, 0 sinon. Chaque ligne contient exactement Q valeurs égales à 1.",
+          },
+          {
+            id: 3,
+            question: "Critère de sélection des axes en ACM :",
+            options: ["λ > 1", "λ > 1/Q", "λ > 0,5", "λ > moyenne des λ"],
+            correct: 1,
+            explanation:
+              "En ACM, l'inertie est artificiellement diluée. Le seuil de Kaiser devient 1/Q (et non 1 comme en ACP).",
+          },
+          {
+            id: 4,
+            question: "La correction de Benzécri sert à :",
+            options: [
+              "Supprimer les modalités rares",
+              "Centrer le tableau Z",
+              "Corriger les % d'inertie sous-estimés",
+              "Faire converger l'algorithme",
+            ],
+            correct: 2,
+            explanation:
+              "Les % d'inertie bruts sous-estiment fortement les premiers axes en ACM. La correction de Benzécri rééchelonne ces pourcentages.",
+          },
+          {
+            id: 5,
+            question:
+              "Dans le TP canines, pourquoi déclarer « fonction » en variable supplémentaire ?",
+            options: [
+              "Elle est quantitative",
+              "Elle a trop de modalités",
+              "Pour valider l'interprétation a posteriori sans qu'elle influe sur les axes",
+              "C'est obligatoire pour l'ACM",
+            ],
+            correct: 2,
+            explanation:
+              "En supplémentaire, elle ne participe pas au calcul des axes mais on la projette pour vérifier que la structure trouvée correspond bien aux fonctions des chiens.",
+          },
+        ]}
+      />
 
       <div className="mt-16 pt-8 border-t border-border flex justify-between items-center">
         <Link to="/data-mining/afc" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent transition">

@@ -12,6 +12,7 @@ import { DataPreview } from "@/components/DataPreview";
 import { Notebook, NbCode, NbOutput, NbMarkdown, NbRich } from "@/components/notebook/Notebook";
 import { SummaryStats } from "@/components/notebook/SummaryStats";
 import { ESB_PCA_DATA, ESB_SUBJECTS, ESB_NAMES } from "@/components/PCAStudentsViz";
+import { QCM } from "@/components/QCM";
 
 const KMeans = () => (
   <PageLayout>
@@ -140,10 +141,96 @@ df.groupby("cluster").mean().round(2)`} />
         <ul className="list-disc pl-5 space-y-1">
           <li>Algorithme <strong>itératif</strong> : affectation ↔ recalcul.</li>
           <li><M>I_W</M> décroît à chaque itération.</li>
-          <li>Sensible à l'<strong>initialisation</strong> → K-means++.</li>
+          <li>Sensible à l'<strong>initialisation</strong> → K-means++ avec n_init ≥ 10.</li>
           <li>K via <strong>coude</strong> + <strong>silhouette</strong>.</li>
         </ul>
       </Callout>
+      <Callout variant="warning" title="Erreurs fréquentes">
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Lancer une seule fois sans n_init → minimum local de mauvaise qualité.</li>
+          <li>Choisir K trop grand → clusters de 1 ou 2 individus, pas de sens.</li>
+          <li>Oublier de standardiser → cluster dominé par la variable à grande variance.</li>
+        </ul>
+      </Callout>
+
+      <QCM
+        title="Testez vos connaissances — K-means"
+        questions={[
+          {
+            id: 1,
+            question: "Quelle est la condition d'arrêt de K-means ?",
+            options: [
+              "Un nombre fixé d'itérations uniquement",
+              "Quand les affectations ne changent plus (ou inertie stable)",
+              "Quand toutes les distances sont nulles",
+              "Quand chaque cluster contient le même nombre de points",
+            ],
+            correct: 1,
+            explanation:
+              "L'algorithme converge dès que les affectations cluster ↔ point sont stables d'une itération à l'autre (donc I_W aussi).",
+          },
+          {
+            id: 2,
+            question: "Méthode du coude : on choisit K à l'endroit où :",
+            options: [
+              "L'inertie atteint zéro",
+              "La courbe d'inertie présente une cassure marquée",
+              "Le silhouette est maximal",
+              "Le nombre d'itérations diminue",
+            ],
+            correct: 1,
+            explanation:
+              "On trace I_W(K) ; on prend le K juste avant le « coude » : ajouter une classe supplémentaire ne réduit plus beaucoup l'inertie.",
+          },
+          {
+            id: 3,
+            question: "Différence principale entre K-means et CAH :",
+            options: [
+              "K-means produit un dendrogramme",
+              "K-means demande K fixé à l'avance ; la CAH non",
+              "K-means n'utilise pas de distance",
+              "La CAH ne fonctionne qu'en dimension 2",
+            ],
+            correct: 1,
+            explanation:
+              "K-means optimise une partition pour un K donné. La CAH construit toute la hiérarchie ; on choisit K en coupant le dendrogramme.",
+          },
+          {
+            id: 4,
+            question: "Pourquoi répéter K-means avec n_init = 10 ?",
+            options: [
+              "Pour augmenter le nombre de clusters",
+              "Pour atténuer la sensibilité au choix initial des centroïdes",
+              "Pour calculer la silhouette",
+              "Pour standardiser les données",
+            ],
+            correct: 1,
+            explanation:
+              "K-means converge vers un minimum local qui dépend de l'initialisation. On lance plusieurs fois et on garde la meilleure inertie.",
+          },
+          {
+            id: 5,
+            question: "Le score de silhouette s(i) ∈ [-1, 1] est bon quand :",
+            options: ["s ≈ 0", "s > 0,5", "s < 0", "s = 1 − a/b"],
+            correct: 1,
+            explanation:
+              "s > 0,5 indique une bonne séparation. s ≈ 0 = points en frontière. s < 0 = points mal classés.",
+          },
+          {
+            id: 6,
+            question: "K-means suppose implicitement des clusters :",
+            options: [
+              "De forme arbitraire",
+              "Sphériques et de tailles comparables",
+              "Toujours imbriqués",
+              "Linéairement séparables",
+            ],
+            correct: 1,
+            explanation:
+              "K-means utilise la distance euclidienne au centre — il échoue sur les formes allongées ou les tailles très déséquilibrées (préférer DBSCAN ou GMM).",
+          },
+        ]}
+      />
 
       <div className="mt-16 pt-8 border-t border-border flex justify-between items-center">
         <Link to="/data-mining/cah" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-accent transition">

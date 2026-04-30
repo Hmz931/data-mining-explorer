@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import DataMining from "./pages/DataMining.tsx";
@@ -17,24 +19,27 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/data-mining" element={<DataMining />} />
-          <Route path="/data-mining/acp" element={<ACP />} />
-          <Route path="/data-mining/afc" element={<AFC />} />
-          <Route path="/data-mining/acm" element={<ACM />} />
-          <Route path="/data-mining/afcm" element={<ACM />} />
-          <Route path="/data-mining/cah" element={<CAH />} />
-          <Route path="/data-mining/kmeans" element={<KMeans />} />
-          <Route path="/about" element={<About />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <HashRouter>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/data-mining" element={<DataMining />} />
+            <Route path="/data-mining/acp" element={<ACP />} />
+            <Route path="/data-mining/afc" element={<AFC />} />
+            <Route path="/data-mining/acm" element={<ACM />} />
+            <Route path="/data-mining/afcm" element={<ACM />} />
+            <Route path="/data-mining/cah" element={<CAH />} />
+            <Route path="/data-mining/kmeans" element={<KMeans />} />
+            <Route path="/about" element={<About />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </HashRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

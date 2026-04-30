@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { BookOpen } from "lucide-react";
+import { Github, Moon, Sun, Menu, X } from "lucide-react";
+import { useTheme } from "./ThemeProvider";
 
 const nav = [
   { to: "/", label: "Accueil" },
@@ -7,44 +9,108 @@ const nav = [
   { to: "/about", label: "À propos" },
 ];
 
-export const SiteHeader = () => (
-  <header className="sticky top-0 z-40 backdrop-blur-md bg-background/80 border-b border-border">
-    <div className="container flex items-center justify-between h-16">
-      <Link to="/" className="flex items-center gap-2.5 group">
-        <div className="w-9 h-9 rounded-md bg-primary text-primary-foreground flex items-center justify-center font-serif text-lg font-bold shadow-ink group-hover:-translate-y-0.5 transition-transform">
-          ε
-        </div>
-        <div className="leading-tight">
-          <div className="font-serif font-semibold text-primary">ESB · Analytics</div>
-          <div className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Carnet pédagogique</div>
-        </div>
-      </Link>
-      <nav className="hidden md:flex items-center gap-1 text-sm">
-        {nav.map((n) => (
-          <NavLink
-            key={n.to}
-            to={n.to}
-            end={n.to === "/"}
-            className={({ isActive }) =>
-              `px-3 py-2 rounded-md transition ${
-                isActive
-                  ? "text-accent font-medium"
-                  : "text-foreground/70 hover:text-primary hover:bg-secondary"
-              }`
-            }
+export const SiteHeader = () => {
+  const { theme, toggle } = useTheme();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
+      <div className="container flex items-center justify-between h-16">
+        <Link to="/" className="flex items-center gap-2.5 group" onClick={() => setOpen(false)}>
+          <div className="w-10 h-10 rounded-md bg-accent text-accent-foreground flex items-center justify-center font-serif text-lg font-bold shadow-ink group-hover:-translate-y-0.5 transition-transform">
+            esb
+          </div>
+          <div className="leading-tight">
+            <div className="font-serif font-semibold text-primary">Hamza Bouguerra</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+              M1 Business Analytics · ESB
+            </div>
+          </div>
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-1 text-sm">
+          {nav.map((n) => (
+            <NavLink
+              key={n.to}
+              to={n.to}
+              end={n.to === "/"}
+              className={({ isActive }) =>
+                `px-3 py-2 rounded-md transition ${
+                  isActive
+                    ? "text-accent font-medium"
+                    : "text-foreground/70 hover:text-primary hover:bg-secondary"
+                }`
+              }
+            >
+              {n.label}
+            </NavLink>
+          ))}
+          <button
+            onClick={toggle}
+            aria-label="Changer de thème"
+            className="ml-1 p-2 rounded-md border border-border hover:bg-secondary transition"
           >
-            {n.label}
-          </NavLink>
-        ))}
-        <a
-          href="https://github.com"
-          target="_blank"
-          rel="noreferrer"
-          className="ml-2 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-border hover:bg-secondary transition"
-        >
-          <BookOpen className="w-3.5 h-3.5" /> GitHub
-        </a>
-      </nav>
-    </div>
-  </header>
-);
+            {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+          </button>
+          <a
+            href="https://github.com/Hmz931/data-mining-explorer"
+            target="_blank"
+            rel="noreferrer"
+            className="ml-1 inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border border-border hover:bg-secondary transition"
+          >
+            <Github className="w-3.5 h-3.5" /> GitHub
+          </a>
+        </nav>
+
+        <div className="md:hidden flex items-center gap-1">
+          <button
+            onClick={toggle}
+            aria-label="Changer de thème"
+            className="p-2 rounded-md border border-border hover:bg-secondary transition"
+          >
+            {theme === "light" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+          </button>
+          <button
+            onClick={() => setOpen(!open)}
+            aria-label="Menu"
+            className="p-2 rounded-md border border-border hover:bg-secondary transition"
+          >
+            {open ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <nav className="md:hidden border-t border-border bg-background/95">
+          <div className="container py-3 flex flex-col gap-1 text-sm">
+            {nav.map((n) => (
+              <NavLink
+                key={n.to}
+                to={n.to}
+                end={n.to === "/"}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `px-3 py-2.5 rounded-md ${
+                    isActive
+                      ? "text-accent font-medium bg-accent/5"
+                      : "text-foreground/80 hover:bg-secondary"
+                  }`
+                }
+              >
+                {n.label}
+              </NavLink>
+            ))}
+            <a
+              href="https://github.com/Hmz931/data-mining-explorer"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-md hover:bg-secondary transition"
+            >
+              <Github className="w-3.5 h-3.5" /> GitHub
+            </a>
+          </div>
+        </nav>
+      )}
+    </header>
+  );
+};

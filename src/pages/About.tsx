@@ -1,38 +1,84 @@
 import { Link } from "react-router-dom";
+import { Github, Mail, BookOpen } from "lucide-react";
 import { PageLayout } from "@/components/PageLayout";
 
 const About = () => (
   <PageLayout>
     <section className="container py-20 max-w-3xl">
-      <div className="text-xs uppercase tracking-[0.22em] text-accent font-medium mb-4">À propos</div>
-      <h1 className="font-serif text-5xl font-semibold text-primary mb-8 leading-[1.05]">
-        Un carnet écrit par et pour la promotion.
-      </h1>
+      <div className="text-xs uppercase tracking-[0.22em] text-accent font-medium mb-4">
+        À propos
+      </div>
+
+      <div className="flex items-center gap-5 mb-10">
+        <div className="w-20 h-20 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-serif text-3xl font-bold shadow-card">
+          HB
+        </div>
+        <div>
+          <h1 className="font-serif text-4xl font-semibold text-primary leading-tight">
+            Hamza Bouguerra
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Étudiant · Master 1 Business Analytics · ESB
+          </p>
+        </div>
+      </div>
+
       <div className="prose-academic">
         <p className="drop-cap">
-          Ce site est né d'une envie simple : disposer d'un endroit unique, clair et durable pour rassembler les
-          méthodes vues en Master 1 Business Analytics à l'<strong>École Supérieure de la Banque</strong>. Pas de cours
-          recopiés, pas de copier-coller de Wikipedia : des fiches synthétiques, démonstrations rigoureuses, et
-          visualisations qui aident à <em>vraiment</em> comprendre.
+          Ce site est un projet personnel — pas un cours officiel. Je suis étudiant en
+          Master 1 Business Analytics à l'<strong>École Supérieure de la Banque</strong>,
+          et j'ai eu envie de mettre au propre mes notes pour les partager avec la
+          promotion. L'idée : un endroit unique, lisible, durable, où retrouver les
+          méthodes vues en cours avec des fiches synthétiques, des démonstrations
+          rigoureuses et des visualisations qui aident à <em>vraiment</em> comprendre.
         </p>
+
         <h2>Comment c'est organisé ?</h2>
         <p>
-          Le contenu est découpé en chapitres correspondant aux grandes matières du programme. Le premier chapitre,
-          <strong> Data Mining</strong>, regroupe les cinq méthodes fondamentales d'analyse exploratoire et de
-          classification. D'autres chapitres viendront — économétrie, ML supervisé, séries temporelles…
+          Chaque chapitre correspond à une matière du programme. Le premier,
+          <strong> Data Mining</strong>, regroupe les cinq méthodes fondamentales
+          (ACP, AFC, ACM, CAH, K-means). D'autres viendront : ML supervisé, séries
+          temporelles, NoSQL, économétrie, NLP…
         </p>
+
         <h2>Comment contribuer ?</h2>
         <p>
-          Le code source est hébergé sur GitHub. Chacun peut proposer des corrections, ajouter une fiche, enrichir
-          un exemple ou améliorer une visualisation. Le site est conçu pour grandir avec la promotion.
+          Le code source est sur GitHub. Toute correction, ajout ou amélioration est
+          la bienvenue — pull request ou issue, comme tu préfères.
         </p>
-        <h2>Crédits</h2>
-        <p>
-          Inspiration pédagogique : Distill.pub, Stripe Press, et les manuels de référence (Saporta, Lebart, Husson).
-        </p>
-        <p>
-          <Link to="/data-mining" className="text-accent">→ Démarrer par le Data Mining</Link>
-        </p>
+
+        <div className="not-prose flex flex-wrap gap-3 my-6">
+          <a
+            href="https://github.com/Hmz931/data-mining-explorer"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md border border-border hover:bg-secondary transition text-sm"
+          >
+            <Github className="w-4 h-4" /> Repo GitHub
+          </a>
+          <Link
+            to="/data-mining"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-accent text-accent-foreground hover:-translate-y-0.5 transition-all text-sm"
+          >
+            <BookOpen className="w-4 h-4" /> Démarrer le Data Mining
+          </Link>
+        </div>
+
+        <h2>Références bibliographiques</h2>
+        <ul>
+          <li>
+            <strong>Saporta, G.</strong> — <em>Probabilités, analyse des données et
+            statistique</em>, Technip, 3ᵉ éd. (2011).
+          </li>
+          <li>
+            <strong>Husson, F., Lê, S., Pagès, J.</strong> — <em>Analyse de données
+            avec R</em>, Presses Universitaires de Rennes (2016).
+          </li>
+          <li>
+            <strong>Lebart, L., Morineau, A., Piron, M.</strong> — <em>Statistique
+            exploratoire multidimensionnelle</em>, Dunod (2006).
+          </li>
+        </ul>
       </div>
     </section>
   </PageLayout>
