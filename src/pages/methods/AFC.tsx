@@ -119,6 +119,7 @@ round(100 * prop.table(addmargins(tab, 2), 2), 1)   # profils colonnes (%)`} />
         </NbMarkdown>
 
         <NbMarkdown title="4 · Test du χ² d'indépendance">
+          <p>H₀ : les deux variables sont indépendantes. On compare χ² observé à la valeur critique pour {ddl} ddl.</p>
         </NbMarkdown>
 
         <NbCode language="r" code={`khi2 <- chisq.test(tab)
@@ -164,6 +165,7 @@ plot.CA(res.ca, invisible = "row")`} />
         <NbRich label="Biplot lignes + colonnes"><AFCViz /></NbRich>
 
         <NbMarkdown title="6 · Coordonnées, cos², contributions">
+          <p>Comme en ACP, on regarde la qualité de représentation (cos²) et l'apport (contrib %) de chaque modalité aux axes.</p>
         </NbMarkdown>
 
         <NbCode language="r" code={`res.ca$row$coord
