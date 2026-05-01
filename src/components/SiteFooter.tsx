@@ -59,7 +59,7 @@ export const SiteFooter = () => (
     </div>
     <div className="border-t border-border">
       <div className="container py-5 text-xs text-muted-foreground flex flex-wrap justify-between gap-2">
-        <span>© 2025 Hamza Bouguerra — Master 1 Business Analytics · ESB</span>
+        <span>© 2026 Hamza Bouguerra — Master 1 Business Analytics · Esprit School of Business</span>
         <a
           href="https://github.com/Hmz931/data-mining-explorer"
           target="_blank"
