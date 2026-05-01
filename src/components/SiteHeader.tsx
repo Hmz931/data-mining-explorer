@@ -16,14 +16,20 @@ export const SiteHeader = () => {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md bg-background/85 border-b border-border">
       <div className="container flex items-center justify-between h-16">
-        <Link to="/" className="flex items-center gap-2.5 group" onClick={() => setOpen(false)}>
-          <div className="w-10 h-10 rounded-md bg-accent text-accent-foreground flex items-center justify-center font-serif text-lg font-bold shadow-ink group-hover:-translate-y-0.5 transition-transform">
-            esb
-          </div>
-          <div className="leading-tight">
-            <div className="font-serif font-semibold text-primary">Hamza Bouguerra</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-              M1 Business Analytics · ESB
+        <Link to="/" className="flex items-center gap-2.5 group min-w-0" onClick={() => setOpen(false)}>
+          <img
+            src="https://avatars.githubusercontent.com/Hmz931"
+            alt="Hamza Bouguerra"
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-accent/30 shadow-ink group-hover:-translate-y-0.5 transition-transform shrink-0"
+            onError={(e) => {
+              const img = e.currentTarget as HTMLImageElement;
+              img.outerHTML = '<div class="w-10 h-10 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-serif text-sm font-bold shadow-ink shrink-0">HB</div>';
+            }}
+          />
+          <div className="leading-tight min-w-0">
+            <div className="font-serif font-semibold text-primary truncate">Hamza Bouguerra</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground truncate">
+              M1 Business Analytics · Esprit School of Business
             </div>
           </div>
         </Link>
