@@ -10,6 +10,7 @@ import { MethodMeta } from "@/components/MethodMeta";
 import { Interpretation } from "@/components/Interpretation";
 import { DataPreview } from "@/components/DataPreview";
 import { Notebook, NbCode, NbOutput, NbMarkdown, NbRich } from "@/components/notebook/Notebook";
+import { CodeTabs } from "@/components/notebook/CodeTabs";
 import { SummaryStats } from "@/components/notebook/SummaryStats";
 import { ESB_PCA_DATA, ESB_SUBJECTS, ESB_NAMES } from "@/components/PCAStudentsViz";
 import { QCM } from "@/components/QCM";
