@@ -11,6 +11,7 @@ import { Chi2Table } from "@/components/Chi2Table";
 import { Interpretation } from "@/components/Interpretation";
 import { DataPreview } from "@/components/DataPreview";
 import { Notebook, NbCode, NbOutput, NbMarkdown, NbRich } from "@/components/notebook/Notebook";
+import { CodeTabs } from "@/components/notebook/CodeTabs";
 import { QCM } from "@/components/QCM";
 
 // Tableau de contingence du TP — Niveau d'études × Type de médias
