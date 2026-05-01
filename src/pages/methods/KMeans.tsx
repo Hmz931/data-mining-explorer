@@ -53,7 +53,7 @@ const KMeans = () => (
         Notebook — K-means sur les notes M1 ESB
       </h2>
 
-      <Notebook>
+      <Notebook kernel="R + Python · HB Analytics">
         <NbMarkdown title="1 · Données &amp; statistiques">
           <p>Mêmes 25 étudiants × 15 matières. On compare avec la CAH précédente.</p>
         </NbMarkdown>

@@ -51,7 +51,7 @@ const CAH = () => (
         Notebook — CAH sur les notes M1 ESB
       </h2>
 
-      <Notebook>
+      <Notebook kernel="R + Python · HB Analytics">
         <NbMarkdown title="1 · Charger les données">
           <p>Mêmes données que pour l'ACP : 25 étudiants × 15 matières. On cherche cette fois des <strong>groupes
           d'étudiants</strong> (et non des axes).</p>
