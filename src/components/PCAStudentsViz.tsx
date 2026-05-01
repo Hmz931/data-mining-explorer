@@ -312,6 +312,7 @@ export const PCAStudentsViz = ({ data }: Props) => {
             })
           )}
         </svg>
+        </div>
         <p className="text-[11px] text-muted-foreground italic mt-2">
           Bleu = corrélation positive, rouge = négative. Les blocs diagonaux par famille (Maths, IT, Gestion, Com.) confirment la structure latente.
         </p>
