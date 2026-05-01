@@ -367,6 +367,32 @@ fviz_eig(ResultatACP, addlabels = TRUE, ylim = c(0, 50))`} />
             explanation:
               "cos² ∈ [0,1]. Proche de 1 → l'individu est très bien représenté sur l'axe. Faible → chercher d'autres axes pour l'interpréter.",
           },
+          {
+            id: 7,
+            question: "Pour tracer le cercle des corrélations, on utilise :",
+            options: [
+              "r(Xⱼ, Fₖ) = vₖⱼ × √λₖ",
+              "r(Xⱼ, Fₖ) = λₖ / Σλ",
+              "r(Xⱼ, Fₖ) = cos²(i, k)",
+              "r(Xⱼ, Fₖ) = √(n − 1)",
+            ],
+            correct: 0,
+            explanation:
+              "La coordonnée d'une variable sur un axe = corrélation linéaire = vₖⱼ × √λₖ. C'est ce qui place la flèche dans le cercle de rayon 1.",
+          },
+          {
+            id: 8,
+            question: "D'après le corrélogramme (TP BaseNotes), on applique l'ACP si :",
+            options: [
+              "Toutes les corrélations sont nulles",
+              "Au moins quelques |cor| ≥ 0,5",
+              "Les variables sont indépendantes",
+              "Toujours, sans regarder",
+            ],
+            correct: 1,
+            explanation:
+              "Sans corrélations entre variables, l'ACP n'apporte rien : les axes seront aussi informatifs que les variables d'origine.",
+          },
         ]}
       />
 
