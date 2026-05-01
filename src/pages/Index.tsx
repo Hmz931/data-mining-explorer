@@ -49,30 +49,30 @@ const Index = () => (
             "radial-gradient(circle at 25% 30%, hsl(var(--accent)) 0, transparent 40%), radial-gradient(circle at 75% 70%, hsl(var(--sage)) 0, transparent 45%)",
         }}
       />
-      <div className="container relative pt-20 pb-24 md:pt-28 md:pb-32">
+      <div className="container relative pt-16 pb-20 md:pt-28 md:pb-32">
         <div className="max-w-3xl animate-fade-up">
-          <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-accent font-medium mb-6">
+          <div className="inline-flex items-center gap-2 text-[10px] sm:text-xs uppercase tracking-[0.22em] text-accent font-medium mb-5 sm:mb-6">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Master 1 · Business Analytics · ESB</span>
+            <span>Master 1 · Business Analytics · Esprit School of Business</span>
           </div>
-          <h1 className="font-serif text-5xl md:text-7xl font-semibold leading-[1.02] tracking-tight text-primary mb-6">
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-7xl font-semibold leading-[1.05] tracking-tight text-primary mb-5 sm:mb-6">
             Notes & visualisations<br />
             <span className="italic text-accent">de la promotion</span>.
           </h1>
-          <p className="text-xl text-foreground/75 leading-relaxed mb-10 max-w-2xl">
+          <p className="text-base sm:text-xl text-foreground/75 leading-relaxed mb-8 sm:mb-10 max-w-2xl">
             Toutes les matières du programme M1 Business Analytics rassemblées en un seul endroit.
             Démonstrations, formules détaillées, code R / Python, visualisations interactives et QCM.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
               to="/data-mining"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-md bg-primary text-primary-foreground font-medium shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all"
+              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-md bg-primary text-primary-foreground font-medium shadow-soft hover:shadow-card hover:-translate-y-0.5 transition-all text-sm sm:text-base"
             >
               Ouvrir le Data Mining <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               to="/about"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-md border border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-all"
+              className="inline-flex items-center gap-2 px-5 sm:px-6 py-3 rounded-md border border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-all text-sm sm:text-base"
             >
               Le projet
             </Link>
