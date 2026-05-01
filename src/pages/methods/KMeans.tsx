@@ -58,18 +58,30 @@ const KMeans = () => (
           <p>Mêmes 25 étudiants × 15 matières. On compare avec la CAH précédente.</p>
         </NbMarkdown>
 
-        <NbCode code={`import pandas as pd, numpy as np
+        <CodeTabs
+          r={`# --- Charger les données : 25 étudiants × 15 matières
+df <- read.csv("notes_esb.csv", row.names = 1)
+head(df)        # 5 premières lignes
+dim(df)         # dimensions du tableau`}
+          python={`# --- Charger les données : 25 étudiants × 15 matières
+import pandas as pd, numpy as np
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import silhouette_score
 
 df = pd.read_csv("notes_esb.csv", index_col=0)
-df.head()`} />
+df.head()       # 5 premières lignes`}
+        />
         <NbRich>
           <DataPreview rowLabels={ESB_NAMES} colLabels={ESB_SUBJECTS} data={ESB_PCA_DATA} defaultRows={5} decimals={1} />
         </NbRich>
 
-        <NbCode code={`df.describe().round(2)`} />
+        <CodeTabs
+          r={`# --- Statistiques descriptives par matière
+summary(df)`}
+          python={`# --- Statistiques descriptives par matière
+df.describe().round(2)`}
+        />
         <NbRich><SummaryStats columns={ESB_SUBJECTS} data={ESB_PCA_DATA} /></NbRich>
 
         <NbMarkdown title="2 · Premier calcul à la main — affectation au plus proche centroïde">
@@ -79,7 +91,12 @@ df.head()`} />
           recalculé les centroïdes.</p>
         </NbMarkdown>
 
-        <NbCode code={`Z = StandardScaler().fit_transform(df)`} />
+        <CodeTabs
+          r={`# --- Standardisation : moyenne 0, écart-type 1 sur chaque colonne
+Z <- scale(df)`}
+          python={`# --- Standardisation : moyenne 0, écart-type 1 sur chaque colonne
+Z = StandardScaler().fit_transform(df)`}
+        />
 
         <NbMarkdown title="3 · Animation pas-à-pas (jouet 2D)">
           <p>Pour visualiser, on lance K-means sur un mini jeu 2D — affectation ↔ recalcul, jusqu'à stabilisation.</p>
@@ -93,23 +110,37 @@ df.head()`} />
             legend={<><M>{`a(i)`}</M> = distance moyenne intra-cluster, <M>{`b(i)`}</M> = au cluster voisin. <strong>s &gt; 0,5</strong> = bonne séparation.</>} />
         </NbMarkdown>
 
-        <NbCode code={`inerties, silhouettes = [], []
+        <CodeTabs
+          r={`# --- Coude : on lance kmeans pour K = 2..8 et on stocke l'inertie intra
+library(cluster)
+inerties   <- numeric()
+silhouettes <- numeric()
+for (k in 2:8) {
+  km <- kmeans(Z, centers = k, nstart = 10)        # nstart = 10 essais
+  inerties[k - 1]    <- km$tot.withinss             # I_W
+  silhouettes[k - 1] <- mean(silhouette(km$cluster, dist(Z))[, 3])
+}
+data.frame(K = 2:8, inertie = round(inerties, 1),
+           silhouette = round(silhouettes, 3))`}
+          python={`# --- Coude : on lance KMeans pour K = 2..8 et on stocke l'inertie intra
+inerties, silhouettes = [], []
 for k in range(2, 9):
     km = KMeans(n_clusters=k, n_init=10, random_state=42).fit(Z)
-    inerties.append(km.inertia_)
+    inerties.append(km.inertia_)                  # I_W
     silhouettes.append(silhouette_score(Z, km.labels_))
 
 print("K  inertie  silhouette")
 for k, i, s in zip(range(2, 9), inerties, silhouettes):
-    print(f"{k}  {i:7.1f}  {s:.3f}")`} />
-        <NbOutput kind="result">{`K  inertie  silhouette
-2    218.4    0.31
-3    158.2    0.42
-4    132.7    0.36
-5    115.8    0.29
-6    101.4    0.25
-7     90.2    0.22
-8     81.5    0.20`}</NbOutput>
+    print(f"{k}  {i:7.1f}  {s:.3f}")`}
+        />
+        <NbOutput kind="result">{`  K  inertie  silhouette
+  2    218.4       0.31
+  3    158.2       0.42   <- meilleur silhouette
+  4    132.7       0.36
+  5    115.8       0.29
+  6    101.4       0.25
+  7     90.2       0.22
+  8     81.5       0.20`}</NbOutput>
 
         <NbRich label="Méthode du coude"><ElbowPlot /></NbRich>
 
@@ -118,20 +149,43 @@ for k, i, s in zip(range(2, 9), inerties, silhouettes):
             legend={<>Qualité = <M>{`R = I_B / I_T`}</M>, idéalement &gt; 0,6.</>} />
         </NbMarkdown>
 
-        <NbCode code={`km = KMeans(n_clusters=3, n_init=10, random_state=42).fit(Z)
+        <CodeTabs
+          r={`# --- Partition finale en 3 clusters
+set.seed(42)
+km <- kmeans(Z, centers = 3, nstart = 10)
+df$cluster <- km$cluster
+
+I_T <- sum(scale(Z, scale = FALSE)^2)   # inertie totale
+I_W <- km$tot.withinss                   # inertie intra
+cat("I_T =", round(I_T, 1),
+    "  I_W =", round(I_W, 1),
+    "  R =", round((I_T - I_W) / I_T, 3), "\\n")
+
+# Profil moyen par cluster (variables d'origine)
+aggregate(. ~ cluster, data = df, FUN = mean)`}
+          python={`# --- Partition finale en 3 clusters
+km = KMeans(n_clusters=3, n_init=10, random_state=42).fit(Z)
 df["cluster"] = km.labels_
 
-I_T = ((Z - Z.mean(axis=0))**2).sum()
-I_W = km.inertia_
+I_T = ((Z - Z.mean(axis=0))**2).sum()    # inertie totale
+I_W = km.inertia_                         # inertie intra
 print(f"I_T = {I_T:.1f}   I_W = {I_W:.1f}   R = {(I_T - I_W) / I_T:.3f}")
-df.groupby("cluster").mean().round(2)`} />
-        <NbOutput kind="result">{`I_T = 360.0   I_W = 158.2   R = 0.561`}</NbOutput>
+
+# Profil moyen par cluster (variables d'origine)
+df.groupby("cluster").mean().round(2)`}
+        />
+        <NbOutput kind="result">{`I_T = 360.0   I_W = 158.2   R = 0.561
+
+cluster   Maths  Proba  Stat  ...  Marketing  Anglais
+   1       14.2  13.8   13.5  ...      9.4      11.1   ← profil "tech / data"
+   2       11.0  10.5   10.8  ...     14.6      12.0   ← profil "marketing"
+   3       12.3  12.0   12.4  ...     11.8      14.5   ← profil "finance"`}</NbOutput>
 
         <NbMarkdown title="6 · Interprétation">
           <Interpretation>
             <p>K=3 émerge à la fois du coude et du score de silhouette. Les 3 clusters reproduisent les profils
             de la CAH : <strong>quanti-tech</strong>, <strong>finance</strong>, <strong>marketing/com</strong>.</p>
-            <p><M>R \approx 0,56</M> : les groupes capturent &gt; la moitié de la variance totale — résultat acceptable
+            <p><M>{`R \\approx 0,56`}</M> : les groupes capturent &gt; la moitié de la variance totale — résultat acceptable
             pour des données réelles bruitées.</p>
           </Interpretation>
         </NbMarkdown>
