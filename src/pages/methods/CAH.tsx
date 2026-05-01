@@ -224,6 +224,33 @@ dtype: int64`}</NbOutput>
             explanation:
               "La distance euclidienne est dominée par les variables à grande variance. Standardiser donne le même poids à chaque variable.",
           },
+          {
+            id: 7,
+            question:
+              "Le saut d'agrégation (ou hauteur de fusion) sur le dendrogramme représente :",
+            options: [
+              "Le nombre d'individus fusionnés",
+              "La distance entre les deux clusters joints à cette étape",
+              "L'inertie totale du dataset",
+              "Le numéro d'itération",
+            ],
+            correct: 1,
+            explanation:
+              "Plus la fusion est haute, plus les deux groupes joints étaient éloignés. Un grand saut = mauvaise idée de les fusionner.",
+          },
+          {
+            id: 8,
+            question: "La CAH est souvent appliquée après une ACP ou ACM. Pourquoi ?",
+            options: [
+              "Pour réduire les valeurs aberrantes",
+              "Pour travailler sur les coordonnées factorielles débruitées et plus stables",
+              "Parce que la CAH ne fonctionne qu'en 2D",
+              "Pour éviter de standardiser",
+            ],
+            correct: 1,
+            explanation:
+              "Les premiers axes capturent la structure et filtrent le bruit. Faire la CAH dessus donne des clusters plus robustes — c'est l'enchaînement classique HCPC dans FactoMineR.",
+          },
         ]}
       />
 

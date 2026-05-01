@@ -60,6 +60,29 @@ const DataMining = () => (
       <p className="text-lg text-foreground/75 max-w-2xl leading-relaxed">
         Cinq méthodes pour explorer, réduire et regrouper. Trois factorielles, deux de classification.
       </p>
+
+      {/* Parcours conseillé */}
+      <div className="mt-10 p-5 rounded-lg border border-border bg-surface/50">
+        <div className="text-[11px] uppercase tracking-[0.2em] text-accent font-semibold mb-3">
+          Parcours conseillé
+        </div>
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-2 text-sm font-mono">
+          {["ACP", "AFC", "ACM", "CAH", "K-means"].map((c, i, arr) => (
+            <li key={c} className="flex items-center gap-2">
+              <Link
+                to={`/data-mining/${c.toLowerCase().replace("-", "")}`}
+                className="px-2.5 py-1 rounded border border-border bg-card hover:border-accent hover:text-accent transition"
+              >
+                {i + 1}. {c}
+              </Link>
+              {i < arr.length - 1 && <span className="text-muted-foreground">→</span>}
+            </li>
+          ))}
+        </ol>
+        <p className="mt-3 text-xs text-muted-foreground">
+          Chaque fiche contient : conditions d'application · formules · notebook R/Python · interprétation · QCM.
+        </p>
+      </div>
     </section>
 
     <section className="container pb-12">

@@ -232,6 +232,22 @@ fviz_mca_biplot(canines.acm, repel = TRUE)`} />
             explanation:
               "En supplémentaire, elle ne participe pas au calcul des axes mais on la projette pour vérifier que la structure trouvée correspond bien aux fonctions des chiens.",
           },
+          {
+            id: 6,
+            question: "Inertie totale (sans correction) en ACM vaut :",
+            options: ["(m − Q)/Q", "1/Q", "Q/(Q−1)", "m × Q"],
+            correct: 0,
+            explanation:
+              "I = (m − Q)/Q où m = nombre total de modalités actives et Q = nombre de variables actives. C'est cette inertie qu'on décompose sur les axes.",
+          },
+          {
+            id: 7,
+            question: "Nombre maximal d'axes en ACM :",
+            options: ["Q", "m", "m − Q", "min(n, m)"],
+            correct: 2,
+            explanation:
+              "Nb d'axes max = (modalités actives) − (variables actives) = m − Q. Sur le TP canines : 16 − 6 = 10.",
+          },
         ]}
       />
 

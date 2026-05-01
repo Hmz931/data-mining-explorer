@@ -195,12 +195,79 @@ fviz_pca_var(res.pca, col.var = "cos2", repel = TRUE)`} />
           </p>
         </NbMarkdown>
 
-        <NbCode language="r" code={`# Variante TP — notes ESB
-# BaseNotes <- read.csv("BaseNotes.csv", row.names = 1)
-# res.pca <- PCA(BaseNotes, ncp = 5,
-#                quanti.sup = c("Rang"),
-#                quali.sup  = c("Ecole"))
-# fviz_pca_biplot(res.pca, habillage = "Ecole", repel = TRUE)`} />
+      </Notebook>
+
+      {/* ───── 2ND NOTEBOOK — BaseNotes ───── */}
+      <h2 className="font-serif text-3xl font-semibold text-primary mt-14 mb-3 pb-3 border-b border-border">
+        Notebook bis — ACP sur BaseNotes (TP classe)
+      </h2>
+
+      <Notebook kernel="R 4.3 · ESB Analytics">
+        <NbMarkdown title="1 · Importer le fichier Excel des notes">
+          <p>9 élèves notés sur 5 matières (<em>Math, Français, Latin, Musique, Sport</em>) +
+          deux variables illustratives : <strong>Rang</strong> (quanti) et <strong>Ecole</strong> (quali).</p>
+        </NbMarkdown>
+
+        <NbCode language="r" code={`install.packages("openxlsx")
+library(openxlsx); library(FactoMineR); library(factoextra); library(corrgram)
+
+setwd("…/PCA - Principle component analysis")
+BaseNotes <- read.xlsx("BaseNotes.xlsx", rowNames = TRUE)
+dim(BaseNotes); names(BaseNotes); head(BaseNotes)`} />
+        <NbOutput kind="result">{`[1] 9 7
+[1] "Math" "Français" "Latin" "Musique" "Sport" "Rang" "Ecole"`}</NbOutput>
+
+        <NbMarkdown title="2 · Statistiques descriptives par matière">
+          <p>On regarde moyennes / min / max / écarts-types — c'est <em>la</em> base avant toute analyse.</p>
+        </NbMarkdown>
+
+        <NbCode language="r" code={`summary(BaseNotes)
+mean(BaseNotes$Math)
+min(BaseNotes$Français); max(BaseNotes$Latin)
+
+# Élève qui a la note maximale en Latin
+which.max(BaseNotes$Latin)
+subset(BaseNotes, Latin == max(Latin), c("Ecole", "Rang"))`} />
+
+        <NbMarkdown title="3 · Matrice de covariance / corrélation + corrélogramme">
+          <p>Règle de décision : si <strong>|cor| ≥ 0,5</strong> sur plusieurs paires → l'ACP est pertinente.</p>
+        </NbMarkdown>
+
+        <NbCode language="r" code={`cov(BaseNotes[, 1:5])
+round(cor(BaseNotes[, 1:5]), 2)
+corrgram(BaseNotes[, 1:5], order = TRUE, lower.panel = panel.conf)`} />
+
+        <NbMarkdown title="4 · Lancer l'ACP avec variables sup">
+          <p><strong>Rang</strong> = quanti.sup (calculée à partir des notes), <strong>Ecole</strong> = quali.sup.</p>
+        </NbMarkdown>
+
+        <NbCode language="r" code={`ResultatACP <- PCA(BaseNotes, ncp = 5,
+                   quanti.sup = c("Rang"),
+                   quali.sup  = c("Ecole"))
+
+plot.PCA(ResultatACP, choix = "ind")     # nuage des élèves
+plot.PCA(ResultatACP, choix = "var")     # cercle des corrélations
+fviz_pca_biplot(ResultatACP, habillage = "Ecole", repel = TRUE)
+
+get_eigenvalue(ResultatACP)
+fviz_eig(ResultatACP, addlabels = TRUE, ylim = c(0, 50))`} />
+
+        <NbMarkdown title="5 · Lecture du cercle des corrélations">
+          <p>
+            La coordonnée d'une variable <M>X_j</M> sur l'axe <M>k</M> vaut <M>{`r(X_j, F_k) = v_{kj}\\sqrt{\\lambda_k}`}</M>
+            — autrement dit la corrélation linéaire variable ↔ axe. On la place donc dans un cercle de rayon 1.
+          </p>
+          <ul>
+            <li>Variable <strong>au bord</strong> du cercle ⇒ bien représentée par les 2 axes affichés.</li>
+            <li>Variable <strong>près du centre</strong> ⇒ il faut regarder un autre plan.</li>
+            <li>Angle entre 2 flèches ≈ corrélation (0° = +1, 90° = 0, 180° = −1).</li>
+          </ul>
+          <Interpretation>
+            <p>Sur BaseNotes, <strong>Math + Latin + Français</strong> tirent vers la droite (axe « scolaire »),
+            <strong> Sport + Musique</strong> tirent vers le haut (axe « artistique/physique »). La variable
+            illustrative <strong>Rang</strong> apparaît opposée à l'axe scolaire (meilleur rang = numéro plus petit).</p>
+          </Interpretation>
+        </NbMarkdown>
       </Notebook>
 
       {/* ───── MÉMO ───── */}
@@ -299,6 +366,32 @@ fviz_pca_var(res.pca, col.var = "cos2", repel = TRUE)`} />
             correct: 2,
             explanation:
               "cos² ∈ [0,1]. Proche de 1 → l'individu est très bien représenté sur l'axe. Faible → chercher d'autres axes pour l'interpréter.",
+          },
+          {
+            id: 7,
+            question: "Pour tracer le cercle des corrélations, on utilise :",
+            options: [
+              "r(Xⱼ, Fₖ) = vₖⱼ × √λₖ",
+              "r(Xⱼ, Fₖ) = λₖ / Σλ",
+              "r(Xⱼ, Fₖ) = cos²(i, k)",
+              "r(Xⱼ, Fₖ) = √(n − 1)",
+            ],
+            correct: 0,
+            explanation:
+              "La coordonnée d'une variable sur un axe = corrélation linéaire = vₖⱼ × √λₖ. C'est ce qui place la flèche dans le cercle de rayon 1.",
+          },
+          {
+            id: 8,
+            question: "D'après le corrélogramme (TP BaseNotes), on applique l'ACP si :",
+            options: [
+              "Toutes les corrélations sont nulles",
+              "Au moins quelques |cor| ≥ 0,5",
+              "Les variables sont indépendantes",
+              "Toujours, sans regarder",
+            ],
+            correct: 1,
+            explanation:
+              "Sans corrélations entre variables, l'ACP n'apporte rien : les axes seront aussi informatifs que les variables d'origine.",
           },
         ]}
       />

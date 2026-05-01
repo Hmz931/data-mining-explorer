@@ -287,6 +287,28 @@ res.ca$col$contrib`} />
             explanation:
               "Proximité + excentration dans la même direction ⇒ attraction : la modalité ligne et la modalité colonne sont sur-représentées ensemble.",
           },
+          {
+            id: 7,
+            question: "L'inertie totale Φ² en AFC vaut :",
+            options: ["χ² × n", "χ² / n", "n / χ²", "Σ nᵢⱼ"],
+            correct: 1,
+            explanation:
+              "Φ² = χ²/n = somme des valeurs propres. C'est ce qui est ensuite décomposé sur les axes factoriels.",
+          },
+          {
+            id: 8,
+            question:
+              "Sur la dimension 1 du TP médias, on passe (Prim → Sup). Cela signifie :",
+            options: [
+              "Les niveaux d'études sont indépendants des médias",
+              "L'axe 1 ordonne les modalités selon le niveau d'études",
+              "Tous les niveaux consomment les mêmes médias",
+              "L'axe 1 capture du bruit aléatoire",
+            ],
+            correct: 1,
+            explanation:
+              "L'axe 1 (~71% d'inertie) ordonne Prim < Second < Tech < Sup et oppose audio-visuel à presse écrite. C'est exactement ce que dit le TP.",
+          },
         ]}
       />
 

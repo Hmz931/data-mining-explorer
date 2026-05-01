@@ -229,6 +229,29 @@ df.groupby("cluster").mean().round(2)`} />
             explanation:
               "K-means utilise la distance euclidienne au centre — il échoue sur les formes allongées ou les tailles très déséquilibrées (préférer DBSCAN ou GMM).",
           },
+          {
+            id: 7,
+            question:
+              "Le ratio de qualité R = I_B / I_T en K-means doit être :",
+            options: ["Proche de 0", "Proche de 1", "Négatif", "Égal à K"],
+            correct: 1,
+            explanation:
+              "Plus R est proche de 1, plus la variance est portée par l'inter-cluster (groupes bien séparés). En pratique, R > 0,6 est considéré comme bon.",
+          },
+          {
+            id: 8,
+            question:
+              "Lors de l'étape « affectation » de K-means, chaque point est assigné :",
+            options: [
+              "Au centroïde le plus proche au sens euclidien",
+              "Au centroïde le plus éloigné",
+              "Au cluster ayant le moins de points",
+              "Aléatoirement",
+            ],
+            correct: 0,
+            explanation:
+              "C'est la règle de base : on calcule ‖xᵢ − μₖ‖ pour chaque k et on prend le plus petit. Ensuite on recalcule μₖ comme moyenne des points affectés.",
+          },
         ]}
       />
 
