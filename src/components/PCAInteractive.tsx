@@ -75,8 +75,31 @@ export const PCAInteractive = () => {
       <div className="grid md:grid-cols-[1fr_220px] gap-6 items-center">
         <svg viewBox="0 0 400 300" className="w-full h-auto bg-surface/40 rounded">
           {/* axes */}
-          <line x1={0} y1={cy} x2={400} y2={cy} stroke="hsl(var(--border))" strokeDasharray="2 4" />
-          <line x1={cx} y1={0} x2={cx} y2={300} stroke="hsl(var(--border))" strokeDasharray="2 4" />
+          <line x1={0} y1={cy} x2={400} y2={cy} stroke="hsl(var(--border))" strokeWidth={1.2} />
+          <line x1={cx} y1={0} x2={cx} y2={300} stroke="hsl(var(--border))" strokeWidth={1.2} />
+          {/* arrows */}
+          <polygon points={`395,${cy} 388,${cy-4} 388,${cy+4}`} fill="hsl(var(--muted-foreground))" />
+          <polygon points={`${cx},5 ${cx-4},12 ${cx+4},12`} fill="hsl(var(--muted-foreground))" />
+          {/* axis labels */}
+          <text x={388} y={cy + 16} fontSize="11" fill="hsl(var(--muted-foreground))" textAnchor="end" fontStyle="italic">
+            X (Variable 1)
+          </text>
+          <text x={cx + 8} y={14} fontSize="11" fill="hsl(var(--muted-foreground))" fontStyle="italic">
+            Y (Variable 2)
+          </text>
+          {/* tick marks */}
+          {[-4,-2,2,4].map((t) => (
+            <g key={`tx${t}`}>
+              <line x1={tx(t)} y1={cy-3} x2={tx(t)} y2={cy+3} stroke="hsl(var(--muted-foreground))" />
+              <text x={tx(t)} y={cy+14} fontSize="9" fill="hsl(var(--muted-foreground))" textAnchor="middle">{t}</text>
+            </g>
+          ))}
+          {[-4,-2,2,4].map((t) => (
+            <g key={`ty${t}`}>
+              <line x1={cx-3} y1={ty(t)} x2={cx+3} y2={ty(t)} stroke="hsl(var(--muted-foreground))" />
+              <text x={cx-6} y={ty(t)+3} fontSize="9" fill="hsl(var(--muted-foreground))" textAnchor="end">{t}</text>
+            </g>
+          ))}
 
           {/* projection lines */}
           {points.map(([x, y], i) => (
@@ -88,12 +111,20 @@ export const PCAInteractive = () => {
             />
           ))}
 
-          {/* the candidate axis */}
+          {/* the candidate axis (PC1) */}
           <line
             x1={tx(-ux * 5)} y1={ty(-uy * 5)}
             x2={tx(ux * 5)} y2={ty(uy * 5)}
             stroke="hsl(var(--accent))" strokeWidth={2.5}
           />
+          <text
+            x={tx(ux * 5) + (ux > 0 ? 6 : -6)}
+            y={ty(uy * 5) + (uy < 0 ? -6 : 12)}
+            fontSize="11" fontWeight="600" fill="hsl(var(--accent))"
+            textAnchor={ux > 0 ? "start" : "end"}
+          >
+            PC1
+          </text>
 
           {/* projected points */}
           {proj.map(([x, y], i) => (
