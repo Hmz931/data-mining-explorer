@@ -77,7 +77,7 @@ const AFC = () => (
         Notebook — Niveau d'études × Type de médias (TP)
       </h2>
 
-      <Notebook kernel="R 4.3 · ESB Analytics">
+      <Notebook kernel="R 4.3 · HB Analytics">
         <NbMarkdown title="1 · Charger le tableau de contingence">
           <p>Données du TP : 4 niveaux d'études (<em>Prim, Second, Tech, Sup</em>) croisés
           avec 6 types de médias consultés.</p>

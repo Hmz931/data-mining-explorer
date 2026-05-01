@@ -15,7 +15,7 @@ let _ctxCounter = { value: 0 };
 export const nbReset = () => { _ctxCounter.value = 0; };
 const nextIn = () => ++_ctxCounter.value;
 
-export const Notebook = ({ children, kernel = "Python 3 · ESB Analytics" }: { children: ReactNode; kernel?: string }) => {
+export const Notebook = ({ children, kernel = "Python 3 · HB Analytics" }: { children: ReactNode; kernel?: string }) => {
   // reset counter when a new Notebook mounts (per render)
   _ctxCounter = { value: 0 };
   return (
