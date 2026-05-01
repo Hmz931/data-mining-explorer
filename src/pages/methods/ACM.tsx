@@ -58,7 +58,7 @@ const ACM = () => (
         Notebook — ACM sur les races canines (TP)
       </h2>
 
-      <Notebook kernel="R 4.3 · ESB Analytics">
+      <Notebook kernel="R 4.3 · HB Analytics">
         <NbMarkdown title="1 · Charger le jeu canines.txt">
           <p>27 races de chiens décrites par 7 variables qualitatives :
           <em> taille, poids, vélocité, intelligence, affection, agressivité, fonction</em>.

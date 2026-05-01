@@ -9,24 +9,30 @@ const About = () => (
         À propos
       </div>
 
-      <div className="flex items-center gap-5 mb-10">
-        <div className="w-20 h-20 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-serif text-3xl font-bold shadow-card">
-          HB
-        </div>
+      <div className="flex items-center gap-5 mb-10 flex-wrap">
+        <img
+          src="https://avatars.githubusercontent.com/Hmz931"
+          alt="Hamza Bouguerra"
+          className="w-24 h-24 rounded-full object-cover ring-4 ring-accent/30 shadow-card"
+          onError={(e) => {
+            const img = e.currentTarget as HTMLImageElement;
+            img.outerHTML = '<div class="w-24 h-24 rounded-full bg-accent text-accent-foreground flex items-center justify-center font-serif text-3xl font-bold shadow-card">HB</div>';
+          }}
+        />
         <div>
-          <h1 className="font-serif text-4xl font-semibold text-primary leading-tight">
+          <h1 className="font-serif text-3xl sm:text-4xl font-semibold text-primary leading-tight">
             Hamza Bouguerra
           </h1>
           <p className="text-muted-foreground mt-1">
-            Étudiant · Master 1 Business Analytics · ESB
+            Étudiant · Master 1 Business Analytics · Esprit School of Business
           </p>
         </div>
       </div>
 
       <div className="prose-academic">
         <p className="drop-cap">
-          Ce site est un projet personnel — pas un cours officiel. Je suis étudiant en
-          Master 1 Business Analytics à l'<strong>École Supérieure de la Banque</strong>,
+          Ce site est un projet personnel. Je suis étudiant en
+          Master 1 Business Analytics à l'<strong>Esprit School of Business</strong>,
           et j'ai eu envie de mettre au propre mes notes pour les partager avec la
           promotion. L'idée : un endroit unique, lisible, durable, où retrouver les
           méthodes vues en cours avec des fiches synthétiques, des démonstrations

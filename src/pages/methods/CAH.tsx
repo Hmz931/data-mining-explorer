@@ -10,6 +10,7 @@ import { MethodMeta } from "@/components/MethodMeta";
 import { Interpretation } from "@/components/Interpretation";
 import { DataPreview } from "@/components/DataPreview";
 import { Notebook, NbCode, NbOutput, NbMarkdown, NbRich } from "@/components/notebook/Notebook";
+import { CodeTabs } from "@/components/notebook/CodeTabs";
 import { SummaryStats } from "@/components/notebook/SummaryStats";
 import { ESB_PCA_DATA, ESB_SUBJECTS, ESB_NAMES } from "@/components/PCAStudentsViz";
 import { QCM } from "@/components/QCM";
@@ -50,27 +51,38 @@ const CAH = () => (
         Notebook — CAH sur les notes M1 ESB
       </h2>
 
-      <Notebook>
+      <Notebook kernel="R + Python · HB Analytics">
         <NbMarkdown title="1 · Charger les données">
           <p>Mêmes données que pour l'ACP : 25 étudiants × 15 matières. On cherche cette fois des <strong>groupes
           d'étudiants</strong> (et non des axes).</p>
         </NbMarkdown>
 
-        <NbCode code={`import pandas as pd, numpy as np
+        <CodeTabs
+          r={`# --- Charger les notes : 25 étudiants × 15 matières
+df <- read.csv("notes_esb.csv", row.names = 1)
+dim(df)         # (25, 15)
+head(df)        # 5 premières lignes`}
+          python={`# --- Charger les notes : 25 étudiants × 15 matières
+import pandas as pd, numpy as np
 from scipy.cluster.hierarchy import linkage, dendrogram, fcluster
 from scipy.spatial.distance import pdist
 from sklearn.preprocessing import StandardScaler
 
 df = pd.read_csv("notes_esb.csv", index_col=0)
-df.shape`} />
-        <NbOutput kind="result">{`(${ESB_NAMES.length}, ${ESB_SUBJECTS.length})`}</NbOutput>
-
-        <NbCode code={`df.head()`} />
+df.shape        # (25, 15)
+df.head()       # 5 premières lignes`}
+        />
+        <NbOutput kind="result">{`[1] ${ESB_NAMES.length} ${ESB_SUBJECTS.length}`}</NbOutput>
         <NbRich>
           <DataPreview rowLabels={ESB_NAMES} colLabels={ESB_SUBJECTS} data={ESB_PCA_DATA} defaultRows={5} decimals={1} />
         </NbRich>
 
-        <NbCode code={`df.describe().round(2)`} />
+        <CodeTabs
+          r={`# --- Stats descriptives par matière
+summary(df)`}
+          python={`# --- Stats descriptives par matière
+df.describe().round(2)`}
+        />
         <NbRich><SummaryStats columns={ESB_SUBJECTS} data={ESB_PCA_DATA} /></NbRich>
 
         <NbMarkdown title="2 · Premier calcul à la main — distance entre deux étudiants">
@@ -81,10 +93,19 @@ df.shape`} />
           </p>
         </NbMarkdown>
 
-        <NbCode code={`Z = StandardScaler().fit_transform(df)
+        <CodeTabs
+          r={`# --- Standardiser puis matrice de distances euclidiennes
+Z <- scale(df)              # moyenne 0, écart-type 1
+D <- dist(Z, method = "euclidean")
+cat("Nombre de paires :", length(D), "\\n")
+cat("min/median/max :", round(min(D), 2),
+    round(median(D), 2), round(max(D), 2), "\\n")`}
+          python={`# --- Standardiser puis matrice de distances euclidiennes
+Z = StandardScaler().fit_transform(df)
 D = pdist(Z, metric="euclidean")          # vecteur condensé n(n-1)/2
 print("Nombre de paires :", len(D))
-print("min/median/max :", D.min().round(2), np.median(D).round(2), D.max().round(2))`} />
+print("min/median/max :", D.min().round(2), np.median(D).round(2), D.max().round(2))`}
+        />
         <NbOutput kind="result">{`Nombre de paires : 300
 min/median/max : 1.42 4.18 7.91`}</NbOutput>
 
@@ -97,8 +118,15 @@ min/median/max : 1.42 4.18 7.91`}</NbOutput>
           </div>
         </NbMarkdown>
 
-        <NbCode code={`Lk = linkage(D, method="ward")
-print("Forme :", Lk.shape, "  hauteur max :", Lk[-1, 2].round(2))`} />
+        <CodeTabs
+          r={`# --- CAH avec critère de Ward
+hc <- hclust(D, method = "ward.D2")
+plot(hc, main = "Dendrogramme — notes M1 ESB",
+     xlab = "", sub = "", cex = 0.7)`}
+          python={`# --- CAH avec critère de Ward
+Lk = linkage(D, method="ward")
+print("Forme :", Lk.shape, "  hauteur max :", Lk[-1, 2].round(2))`}
+        />
         <NbOutput kind="result">{`Forme : (24, 4)   hauteur max : 18.42`}</NbOutput>
 
         <NbRich label="Dendrogramme interactif"><CAHViz /></NbRich>
@@ -107,15 +135,23 @@ print("Forme :", Lk.shape, "  hauteur max :", Lk[-1, 2].round(2))`} />
           <p>On choisit K en cherchant le <strong>plus grand saut vertical</strong>. Avec K=3 ici :</p>
         </NbMarkdown>
 
-        <NbCode code={`clusters = fcluster(Lk, t=3, criterion="maxclust")
+        <CodeTabs
+          r={`# --- Couper l'arbre en 3 classes
+clusters <- cutree(hc, k = 3)
+df$cluster <- clusters
+
+table(clusters)                                 # taille des clusters
+aggregate(. ~ cluster, data = df, FUN = mean)   # profils moyens`}
+          python={`# --- Couper l'arbre en 3 classes
+clusters = fcluster(Lk, t=3, criterion="maxclust")
 df["cluster"] = clusters
-df.groupby("cluster").mean().round(2)        # profils moyens
-df.groupby("cluster").size()                  # taille des clusters`} />
-        <NbOutput kind="result">{`cluster
-1    9
-2    8
-3    8
-dtype: int64`}</NbOutput>
+
+df.groupby("cluster").size()                  # taille des clusters
+df.groupby("cluster").mean().round(2)         # profils moyens`}
+        />
+        <NbOutput kind="result">{`clusters
+1 2 3
+9 8 8`}</NbOutput>
 
         <NbMarkdown title="5 · Interprétation">
           <Interpretation>

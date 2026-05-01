@@ -84,7 +84,7 @@ const ACP = () => (
         Notebook — ACP sur Decathlon (TP)
       </h2>
 
-      <Notebook kernel="R 4.3 · ESB Analytics">
+      <Notebook kernel="R 4.3 · HB Analytics">
         <NbMarkdown title="1 · Charger le jeu de données">
           <p>Données <code>decathlon</code> du package <strong>FactoMineR</strong> :
           performances de 41 décathloniens sur 10 épreuves + variables supplémentaires
@@ -202,7 +202,7 @@ fviz_pca_var(res.pca, col.var = "cos2", repel = TRUE)`} />
         Notebook bis — ACP sur BaseNotes (TP classe)
       </h2>
 
-      <Notebook kernel="R 4.3 · ESB Analytics">
+      <Notebook kernel="R 4.3 · HB Analytics">
         <NbMarkdown title="1 · Importer le fichier Excel des notes">
           <p>9 élèves notés sur 5 matières (<em>Math, Français, Latin, Musique, Sport</em>) +
           deux variables illustratives : <strong>Rang</strong> (quanti) et <strong>Ecole</strong> (quali).</p>

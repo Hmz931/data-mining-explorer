@@ -280,7 +280,8 @@ export const PCAStudentsViz = ({ data }: Props) => {
       <div className="p-6 rounded-lg border border-border bg-card shadow-soft">
         <div className="text-xs uppercase tracking-[0.18em] text-accent font-semibold">Correlogramme</div>
         <h4 className="font-serif text-lg font-semibold text-primary mt-0.5 mb-3">Matrice de corrélation des matières</h4>
-        <svg viewBox={`0 0 ${SUBJECTS.length * 26 + 110} ${SUBJECTS.length * 26 + 30}`} className="w-full h-auto">
+        <div className="overflow-x-auto -mx-2 px-2">
+          <svg viewBox={`0 0 ${SUBJECTS.length * 26 + 110} ${SUBJECTS.length * 26 + 30}`} className="h-auto" style={{ minWidth: 520, width: "100%" }}>
           {SUBJECTS.map((s, i) => (
             <text key={`r${i}`} x={108} y={30 + i * 26 + 16} textAnchor="end" fontSize="9.5" fill={FAMILY_COLORS[FAMILIES[i]]} fontWeight="600">
               {s}
@@ -311,6 +312,7 @@ export const PCAStudentsViz = ({ data }: Props) => {
             })
           )}
         </svg>
+        </div>
         <p className="text-[11px] text-muted-foreground italic mt-2">
           Bleu = corrélation positive, rouge = négative. Les blocs diagonaux par famille (Maths, IT, Gestion, Com.) confirment la structure latente.
         </p>

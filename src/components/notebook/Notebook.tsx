@@ -15,7 +15,7 @@ let _ctxCounter = { value: 0 };
 export const nbReset = () => { _ctxCounter.value = 0; };
 const nextIn = () => ++_ctxCounter.value;
 
-export const Notebook = ({ children, kernel = "Python 3 · ESB Analytics" }: { children: ReactNode; kernel?: string }) => {
+export const Notebook = ({ children, kernel = "Python 3 · HB Analytics" }: { children: ReactNode; kernel?: string }) => {
   // reset counter when a new Notebook mounts (per render)
   _ctxCounter = { value: 0 };
   return (
@@ -49,27 +49,101 @@ export const NbMarkdown = ({ children, title }: { children?: ReactNode; title?: 
   </div>
 );
 
-/* ───────────── Code cell ───────────── */
+/* ───────────── Code cell ─────────────
+ * Real tokenizer (no chained regex replaces) so that token text never gets
+ * re-matched as code. Order: comments → strings → numbers → identifiers/operators.
+ */
+const ESC = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+const KW_PY = new Set([
+  "import","from","as","def","return","if","elif","else","for","while","in","not","and","or","is",
+  "None","True","False","class","with","lambda","try","except","raise","pass","break","continue",
+  "yield","global","nonlocal",
+]);
+const BI_PY = new Set([
+  "print","len","range","list","dict","tuple","set","str","int","float","sum","min","max","abs",
+  "round","enumerate","zip","map","filter","sorted","open","type",
+]);
+const KW_R = new Set([
+  "function","return","if","else","for","while","in","TRUE","FALSE","NULL","NA","NaN","Inf",
+  "next","break","repeat",
+]);
+const BI_R = new Set([
+  "library","require","c","data","str","dim","head","tail","summary","nrow","ncol","rownames",
+  "colnames","matrix","factor","table","scale","cor","cov","mean","median","sd","var","sum","min",
+  "max","abs","round","print","paste","cat","plot","barplot","hist","boxplot","PCA","CA","MCA",
+  "HCPC","kmeans","hclust","dist","cutree","fviz_eig","fviz_pca_biplot","fviz_pca_ind","fviz_pca_var",
+  "fviz_mca","fviz_mca_ind","fviz_mca_var","fviz_screeplot","fviz_dend","fviz_cluster","ddply",
+  "corrgram","geom_hline","invisible","read.xlsx","read_excel","write.xlsx","setwd","getwd",
+  "subset","which.max","which.min","quantile","prop.table","addmargins","chisq.test","ifelse",
+  "data.frame","as.factor","as.numeric","as.character","install.packages",
+]);
+
 function highlightCode(src: string, language: string): string {
-  const escape = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const KW_PY = /\b(import|from|as|def|return|if|elif|else|for|while|in|not|and|or|is|None|True|False|class|with|lambda|try|except|raise|pass|break|continue|yield|global|nonlocal)\b/g;
-  const BUILTINS_PY = /\b(print|len|range|list|dict|tuple|set|str|int|float|sum|min|max|abs|round|enumerate|zip|map|filter|sorted|open|type)\b/g;
-  const KW_R = /\b(library|require|install\.packages|function|return|if|else|for|while|in|TRUE|FALSE|NULL|NA|NaN|Inf|next|break|repeat)\b/g;
-  const BUILTINS_R = /\b(c|data|str|dim|head|tail|summary|nrow|ncol|rownames|colnames|matrix|data\.frame|factor|as\.factor|as\.numeric|as\.character|table|prop\.table|addmargins|chisq\.test|scale|cor|mean|median|sd|var|sum|min|max|abs|round|print|paste|cat|plot|barplot|hist|boxplot|PCA|CA|MCA|HCPC|kmeans|hclust|dist|cutree|fviz_eig|fviz_pca_biplot|fviz_pca_ind|fviz_pca_var|fviz_mca|fviz_mca_ind|fviz_mca_var|fviz_screeplot|fviz_dend|fviz_cluster|ddply|corrgram|geom_hline|invisible)\b/g;
-  return escape(src).split("\n").map((line) => {
-    let out = line.replace(/(#[^\n]*)/g, '<span class="text-emerald-400/90 italic">$1</span>');
-    out = out.replace(/("[^"\n]*"|'[^'\n]*')/g, '<span class="text-amber-300">$1</span>');
-    out = out.replace(/\b(\d+\.?\d*)\b/g, '<span class="text-rose-300">$1</span>');
-    if (language === "r") {
-      out = out.replace(BUILTINS_R, '<span class="text-sky-300">$1</span>');
-      out = out.replace(KW_R, '<span class="text-violet-300 font-semibold">$1</span>');
-      out = out.replace(/(&lt;-|-&gt;|~)/g, '<span class="text-fuchsia-300">$1</span>');
-    } else {
-      out = out.replace(BUILTINS_PY, '<span class="text-sky-300">$1</span>');
-      out = out.replace(KW_PY, '<span class="text-violet-300 font-semibold">$1</span>');
+  const isR = language === "r";
+  const KW = isR ? KW_R : KW_PY;
+  const BI = isR ? BI_R : BI_PY;
+  const out: string[] = [];
+  let i = 0;
+  const n = src.length;
+  const push = (cls: string | null, text: string) => {
+    if (!text) return;
+    out.push(cls ? `<span class="${cls}">${ESC(text)}</span>` : ESC(text));
+  };
+  while (i < n) {
+    const c = src[i];
+    // comment to end-of-line
+    if (c === "#") {
+      let j = i; while (j < n && src[j] !== "\n") j++;
+      push("text-emerald-400/90 italic", src.slice(i, j));
+      i = j; continue;
     }
-    return out;
-  }).join("\n");
+    // string literal
+    if (c === '"' || c === "'") {
+      const q = c; let j = i + 1;
+      while (j < n && src[j] !== q && src[j] !== "\n") {
+        if (src[j] === "\\" && j + 1 < n) j += 2; else j++;
+      }
+      if (j < n && src[j] === q) j++;
+      push("text-amber-300", src.slice(i, j));
+      i = j; continue;
+    }
+    // number
+    if (/[0-9]/.test(c) && (i === 0 || !/[A-Za-z_.]/.test(src[i - 1]))) {
+      let j = i; while (j < n && /[0-9.eE+\-]/.test(src[j]) && !(src[j] === "+" && src[j-1] !== "e" && src[j-1] !== "E") && !(src[j] === "-" && src[j-1] !== "e" && src[j-1] !== "E")) j++;
+      // simpler: digits and one dot
+      j = i; let seenDot = false;
+      while (j < n && (/[0-9]/.test(src[j]) || (src[j] === "." && !seenDot))) {
+        if (src[j] === ".") seenDot = true;
+        j++;
+      }
+      push("text-rose-300", src.slice(i, j));
+      i = j; continue;
+    }
+    // R assignment <- or ->
+    if (isR && c === "<" && src[i + 1] === "-") {
+      push("text-fuchsia-300", "<-"); i += 2; continue;
+    }
+    if (isR && c === "-" && src[i + 1] === ">") {
+      push("text-fuchsia-300", "->"); i += 2; continue;
+    }
+    // identifier (allow . in R names like as.factor, prop.table)
+    if (/[A-Za-z_]/.test(c)) {
+      let j = i + 1;
+      const idChar = isR ? /[A-Za-z0-9_.]/ : /[A-Za-z0-9_]/;
+      while (j < n && idChar.test(src[j])) j++;
+      const word = src.slice(i, j);
+      if (KW.has(word)) push("text-violet-300 font-semibold", word);
+      else if (BI.has(word)) push("text-sky-300", word);
+      else push(null, word);
+      i = j; continue;
+    }
+    // default: single char
+    push(null, c);
+    i++;
+  }
+  return out.join("");
 }
 
 export const NbCode = ({ code, language = "python" }: { code: string; language?: "python" | "r" }) => {
