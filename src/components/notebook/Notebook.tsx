@@ -69,6 +69,15 @@ const KW_R = new Set([
   "function","return","if","else","for","while","in","TRUE","FALSE","NULL","NA","NaN","Inf",
   "next","break","repeat",
 ]);
+const KW_JS = new Set([
+  "var","let","const","function","return","if","else","for","while","in","of","new","null",
+  "true","false","undefined","class","try","catch","throw","typeof","instanceof","do","switch",
+  "case","break","continue","this","async","await",
+]);
+const BI_JS = new Set([
+  "db","use","show","print","printjson","ObjectId","ISODate","NumberInt","NumberLong","BinData",
+  "Date","Math","JSON","Array","Object","String","Number","Boolean",
+]);
 const BI_R = new Set([
   "library","require","c","data","str","dim","head","tail","summary","nrow","ncol","rownames",
   "colnames","matrix","factor","table","scale","cor","cov","mean","median","sd","var","sum","min",
@@ -82,8 +91,9 @@ const BI_R = new Set([
 
 function highlightCode(src: string, language: string): string {
   const isR = language === "r";
-  const KW = isR ? KW_R : KW_PY;
-  const BI = isR ? BI_R : BI_PY;
+  const isJs = language === "js" || language === "javascript" || language === "mongo";
+  const KW = isR ? KW_R : isJs ? KW_JS : KW_PY;
+  const BI = isR ? BI_R : isJs ? BI_JS : BI_PY;
   const out: string[] = [];
   let i = 0;
   const n = src.length;
@@ -93,8 +103,8 @@ function highlightCode(src: string, language: string): string {
   };
   while (i < n) {
     const c = src[i];
-    // comment to end-of-line
-    if (c === "#") {
+    // comment to end-of-line — # for py/r, // for js
+    if ((!isJs && c === "#") || (isJs && c === "/" && src[i + 1] === "/")) {
       let j = i; while (j < n && src[j] !== "\n") j++;
       push("text-emerald-400/90 italic", src.slice(i, j));
       i = j; continue;
@@ -128,14 +138,15 @@ function highlightCode(src: string, language: string): string {
     if (isR && c === "-" && src[i + 1] === ">") {
       push("text-fuchsia-300", "->"); i += 2; continue;
     }
-    // identifier (allow . in R names like as.factor, prop.table)
-    if (/[A-Za-z_]/.test(c)) {
+    // identifier (allow . in R names like as.factor; allow $ prefix in JS for $match, $group)
+    if (/[A-Za-z_]/.test(c) || (isJs && c === "$" && /[A-Za-z_]/.test(src[i + 1] ?? ""))) {
       let j = i + 1;
-      const idChar = isR ? /[A-Za-z0-9_.]/ : /[A-Za-z0-9_]/;
+      const idChar = isR ? /[A-Za-z0-9_.]/ : isJs ? /[A-Za-z0-9_$]/ : /[A-Za-z0-9_]/;
       while (j < n && idChar.test(src[j])) j++;
       const word = src.slice(i, j);
       if (KW.has(word)) push("text-violet-300 font-semibold", word);
       else if (BI.has(word)) push("text-sky-300", word);
+      else if (isJs && word.startsWith("$")) push("text-fuchsia-300 font-semibold", word);
       else push(null, word);
       i = j; continue;
     }
@@ -146,11 +157,11 @@ function highlightCode(src: string, language: string): string {
   return out.join("");
 }
 
-export const NbCode = ({ code, language = "python" }: { code: string; language?: "python" | "r" }) => {
+export const NbCode = ({ code, language = "python" }: { code: string; language?: "python" | "r" | "js" | "javascript" | "mongo" }) => {
   const [copied, setCopied] = useState(false);
   const n = nextIn();
   const html = highlightCode(code, language);
-  const langLabel = language === "r" ? "R" : "Py";
+  const langLabel = language === "r" ? "R" : (language === "js" || language === "javascript" || language === "mongo") ? "mongo" : "Py";
   return (
     <div className="grid grid-cols-[60px_1fr] bg-card group">
       <div className="pt-3 pr-2 text-right font-mono text-[11px] text-sky-700/70 dark:text-sky-400/70 select-none border-r border-border/40">

@@ -14,6 +14,12 @@ import AFC from "./pages/methods/AFC.tsx";
 import ACM from "./pages/methods/ACM.tsx";
 import CAH from "./pages/methods/CAH.tsx";
 import KMeans from "./pages/methods/KMeans.tsx";
+import NoSQL from "./pages/NoSQL.tsx";
+import NoSQLIntro from "./pages/nosql/Intro.tsx";
+import NoSQLMongo from "./pages/nosql/MongoDB.tsx";
+import NoSQLCrud from "./pages/nosql/CRUD.tsx";
+import NoSQLAgg from "./pages/nosql/Aggregation.tsx";
+import NoSQLTd from "./pages/nosql/TPModelisation.tsx";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +40,12 @@ const App = () => (
             <Route path="/data-mining/afcm" element={<ACM />} />
             <Route path="/data-mining/cah" element={<CAH />} />
             <Route path="/data-mining/kmeans" element={<KMeans />} />
+            <Route path="/nosql" element={<NoSQL />} />
+            <Route path="/nosql/intro" element={<NoSQLIntro />} />
+            <Route path="/nosql/mongodb" element={<NoSQLMongo />} />
+            <Route path="/nosql/crud" element={<NoSQLCrud />} />
+            <Route path="/nosql/aggregation" element={<NoSQLAgg />} />
+            <Route path="/nosql/td-modelisation" element={<NoSQLTd />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
