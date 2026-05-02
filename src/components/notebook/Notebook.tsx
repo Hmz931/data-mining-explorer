@@ -138,14 +138,15 @@ function highlightCode(src: string, language: string): string {
     if (isR && c === "-" && src[i + 1] === ">") {
       push("text-fuchsia-300", "->"); i += 2; continue;
     }
-    // identifier (allow . in R names like as.factor, prop.table)
-    if (/[A-Za-z_]/.test(c)) {
+    // identifier (allow . in R names like as.factor; allow $ prefix in JS for $match, $group)
+    if (/[A-Za-z_]/.test(c) || (isJs && c === "$" && /[A-Za-z_]/.test(src[i + 1] ?? ""))) {
       let j = i + 1;
-      const idChar = isR ? /[A-Za-z0-9_.]/ : /[A-Za-z0-9_]/;
+      const idChar = isR ? /[A-Za-z0-9_.]/ : isJs ? /[A-Za-z0-9_$]/ : /[A-Za-z0-9_]/;
       while (j < n && idChar.test(src[j])) j++;
       const word = src.slice(i, j);
       if (KW.has(word)) push("text-violet-300 font-semibold", word);
       else if (BI.has(word)) push("text-sky-300", word);
+      else if (isJs && word.startsWith("$")) push("text-fuchsia-300 font-semibold", word);
       else push(null, word);
       i = j; continue;
     }
