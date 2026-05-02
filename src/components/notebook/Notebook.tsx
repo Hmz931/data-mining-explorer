@@ -157,11 +157,11 @@ function highlightCode(src: string, language: string): string {
   return out.join("");
 }
 
-export const NbCode = ({ code, language = "python" }: { code: string; language?: "python" | "r" }) => {
+export const NbCode = ({ code, language = "python" }: { code: string; language?: "python" | "r" | "js" | "javascript" | "mongo" }) => {
   const [copied, setCopied] = useState(false);
   const n = nextIn();
   const html = highlightCode(code, language);
-  const langLabel = language === "r" ? "R" : "Py";
+  const langLabel = language === "r" ? "R" : (language === "js" || language === "javascript" || language === "mongo") ? "mongo" : "Py";
   return (
     <div className="grid grid-cols-[60px_1fr] bg-card group">
       <div className="pt-3 pr-2 text-right font-mono text-[11px] text-sky-700/70 dark:text-sky-400/70 select-none border-r border-border/40">
