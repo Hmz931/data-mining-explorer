@@ -91,8 +91,9 @@ const BI_R = new Set([
 
 function highlightCode(src: string, language: string): string {
   const isR = language === "r";
-  const KW = isR ? KW_R : KW_PY;
-  const BI = isR ? BI_R : BI_PY;
+  const isJs = language === "js" || language === "javascript" || language === "mongo";
+  const KW = isR ? KW_R : isJs ? KW_JS : KW_PY;
+  const BI = isR ? BI_R : isJs ? BI_JS : BI_PY;
   const out: string[] = [];
   let i = 0;
   const n = src.length;
