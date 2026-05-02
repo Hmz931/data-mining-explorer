@@ -32,7 +32,7 @@ const subjects = [
   },
   { n: "II", code: "ML", title: "Machine Learning", status: "soon", desc: "Apprentissage supervisé et non supervisé.", icon: Brain },
   { n: "III", code: "TS", title: "Séries Temporelles", status: "soon", desc: "ARIMA, lissage, décomposition saisonnière.", icon: TrendingUp },
-  { n: "IV", code: "DB", title: "NoSQL", status: "soon", desc: "MongoDB, Cassandra, Neo4j, Redis.", icon: Database },
+  { n: "IV", code: "DB", title: "NoSQL", status: "open", desc: "MongoDB : documents, CRUD, agrégation, modélisation.", to: "/nosql", icon: Database },
   { n: "V", code: "EC", title: "Économétrie", status: "soon", desc: "Régression, tests, modèles à équations.", icon: TrendingUp },
   { n: "VI", code: "NLP", title: "Traitement du Langage", status: "soon", desc: "Vectorisation, sentiment, transformers.", icon: Brain },
 ];
