@@ -212,7 +212,7 @@ mongorestore backup`} />
           { id: 9, question: "Pour une recherche par regex :", options: ["$like", "$match", "$regex", "$pattern"], correct: 2, explanation: "{ nom: { $regex: '^s' } }." },
           { id: 10, question: "ET logique entre conditions :", options: ["$and obligatoire", "Mettre les conditions côte à côte (implicit AND)", "$concat", "AND keyword"], correct: 1, explanation: "Conditions multiples = ET implicite. $and explicite si conflit de clés." },
           { id: 11, question: "OU logique :", options: ["$or", "OR", "||", "$any"], correct: 0, explanation: "$or: [ {…}, {…} ]." },
-          { id: 12, question: "Compter les résultats :", options: ".size()", ".count()", "count(*)", ".length()"].map ? ["size()","count()","COUNT(*)","length()"] : [], correct: 1, explanation: "find().count() ou countDocuments()." },
+          { id: 12, question: "Compter les résultats :", options: ["size()", "count()", "COUNT(*)", "length()"], correct: 1, explanation: "find().count() ou countDocuments()." },
           { id: 13, question: "Pour modifier un champ sans écraser le document :", options: ["update({},{champ:val})", "update({}, {$set: {champ:val}})", "set(champ,val)", "modify()"], correct: 1, explanation: "Sans $set, update remplace tout le document !" },
           { id: 14, question: "Incrémenter un entier :", options: ["$add", "$inc", "$plus", "$incr"], correct: 1, explanation: "{ $inc: { age: 1 } }." },
           { id: 15, question: "Ajouter une valeur en fin de tableau :", options: ["$add", "$push", "$append", "$insert"], correct: 1, explanation: "$push (avec duplicats), $addToSet (sans)." },
