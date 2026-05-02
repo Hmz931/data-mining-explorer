@@ -69,6 +69,15 @@ const KW_R = new Set([
   "function","return","if","else","for","while","in","TRUE","FALSE","NULL","NA","NaN","Inf",
   "next","break","repeat",
 ]);
+const KW_JS = new Set([
+  "var","let","const","function","return","if","else","for","while","in","of","new","null",
+  "true","false","undefined","class","try","catch","throw","typeof","instanceof","do","switch",
+  "case","break","continue","this","async","await",
+]);
+const BI_JS = new Set([
+  "db","use","show","print","printjson","ObjectId","ISODate","NumberInt","NumberLong","BinData",
+  "Date","Math","JSON","Array","Object","String","Number","Boolean",
+]);
 const BI_R = new Set([
   "library","require","c","data","str","dim","head","tail","summary","nrow","ncol","rownames",
   "colnames","matrix","factor","table","scale","cor","cov","mean","median","sd","var","sum","min",
