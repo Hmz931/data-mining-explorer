@@ -103,8 +103,8 @@ function highlightCode(src: string, language: string): string {
   };
   while (i < n) {
     const c = src[i];
-    // comment to end-of-line
-    if (c === "#") {
+    // comment to end-of-line — # for py/r, // for js
+    if ((!isJs && c === "#") || (isJs && c === "/" && src[i + 1] === "/")) {
       let j = i; while (j < n && src[j] !== "\n") j++;
       push("text-emerald-400/90 italic", src.slice(i, j));
       i = j; continue;
