@@ -40,6 +40,12 @@ const App = () => (
             <Route path="/data-mining/afcm" element={<ACM />} />
             <Route path="/data-mining/cah" element={<CAH />} />
             <Route path="/data-mining/kmeans" element={<KMeans />} />
+            <Route path="/nosql" element={<NoSQL />} />
+            <Route path="/nosql/intro" element={<NoSQLIntro />} />
+            <Route path="/nosql/mongodb" element={<NoSQLMongo />} />
+            <Route path="/nosql/crud" element={<NoSQLCrud />} />
+            <Route path="/nosql/aggregation" element={<NoSQLAgg />} />
+            <Route path="/nosql/td-modelisation" element={<NoSQLTd />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
